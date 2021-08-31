@@ -613,7 +613,9 @@ static FnSymbol* chplGenMainExists() {
           (fn->numFormals() == 1 &&
            fn->getFormal(1)->typeInfo() == dtArray) ) {
         mainHasArgs = (fn->numFormals() > 0);
-
+        // if (mainHasArgs) {
+        //   mainPreserveDelimiter = true;
+        // }
         CallExpr* ret = toCallExpr(fn->body->body.last());
 
         if (ret == NULL || ret->isPrimitive(PRIM_RETURN) == false) {
@@ -1241,7 +1243,7 @@ static void buildEnumIntegerCastFunctions(EnumType* et) {
     // know that chpl_enum_cast_error() always throws
     fn->insertAtTail(new CallExpr(PRIM_RETURN,
                                   toDefExpr(et->constants.first())->sym));
-    
+
     def = new DefExpr(fn);
     baseModule->block->insertAtTail(def);
     reset_ast_loc(def, et->symbol);

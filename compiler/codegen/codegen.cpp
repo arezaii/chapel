@@ -1994,6 +1994,8 @@ codegen_config() {
     fprintf(outfile, "#include \"error.h\"\n\n");
 
     genGlobalInt("mainHasArgs", mainHasArgs, false);
+    genGlobalInt("mainPreserveDelimiter", mainPreserveDelimiter, false);
+
 
     fprintf(outfile, "void CreateConfigVarTable(void) {\n");
     fprintf(outfile, "initConfigVarTable();\n");
@@ -2034,6 +2036,7 @@ codegen_config() {
     llvm::FunctionType *createConfigType;
     llvm::Function *createConfigFunc;
     genGlobalInt("mainHasArgs", mainHasArgs, false);
+    genGlobalInt("mainPreserveDelimiter", mainPreserveDelimiter, false);
     if((createConfigFunc = getFunctionLLVM("CreateConfigVarTable"))) {
       createConfigType = createConfigFunc->getFunctionType();
     }
