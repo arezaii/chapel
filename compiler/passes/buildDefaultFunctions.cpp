@@ -613,9 +613,10 @@ static FnSymbol* chplGenMainExists() {
           (fn->numFormals() == 1 &&
            fn->getFormal(1)->typeInfo() == dtArray) ) {
         mainHasArgs = (fn->numFormals() > 0);
-        // if (mainHasArgs) {
-        //   mainPreserveDelimiter = true;
-        // }
+        // TODO: How to set mainPreserveDelimiter properly?
+        if (mainHasArgs) {
+          mainPreserveDelimiter = true;
+        }
         CallExpr* ret = toCallExpr(fn->body->body.last());
 
         if (ret == NULL || ret->isPrimitive(PRIM_RETURN) == false) {
