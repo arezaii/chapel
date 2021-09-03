@@ -25,7 +25,7 @@
 
 use FileSystem;
 use Map;
-use MasonArgParse;
+use ArgParse;
 use MasonBuild;
 use MasonDoc;
 use MasonEnv;

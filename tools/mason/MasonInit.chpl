@@ -20,7 +20,7 @@
 
 use FileSystem;
 use List;
-use MasonArgParse;
+use ArgParse;
 use MasonBuild;
 use MasonEnv;
 use MasonExample;

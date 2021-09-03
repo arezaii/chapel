@@ -22,7 +22,7 @@
 use FileSystem;
 use List;
 use Map;
-use MasonArgParse;
+use ArgParse;
 use MasonBuild;
 use MasonHelp;
 use MasonUpdate;

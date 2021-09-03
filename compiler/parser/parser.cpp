@@ -655,15 +655,23 @@ static ModuleSymbol* parseFile(const char* path,
     // look at the very last value in the resulting vector to see if it is
     // MasonArgParse.chpl
 
-    if (modTag != MOD_STANDARD) {
-      std::vector<std::string> pathParts;
-      splitString(std::string(cleanFilename(path)), pathParts, "/");
+    // if (modTag != MOD_STANDARD) {
+    //   std::vector<std::string> pathParts;
+    //   splitString(std::string(cleanFilename(path)), pathParts, "/");
 
-      if (strcmp(pathParts[pathParts.size() - 1].c_str(), "MasonArgParse.chpl") == 0) {
+    //   if (strcmp(pathParts[pathParts.size() - 1].c_str(), "MasonArgParse.chpl") == 0) {
 
+    //       mainPreserveDelimiter = true;
+    //   }
+    // }
+
+    // Once ArgParse.chpl exists and lives in modules/packages then we can get
+    // away with something like this
+    if (modTag == MOD_STANDARD &&
+        strcmp("$CHPL_HOME/modules/packages/ArgParse.chpl", cleanFilename(path))==0) {
           mainPreserveDelimiter = true;
-      }
     }
+
     if (printModuleFiles && (modTag != MOD_INTERNAL || developer)) {
       if (sFirstFile) {
         fprintf(stderr, "Parsing module files:\n");

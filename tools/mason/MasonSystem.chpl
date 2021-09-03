@@ -21,7 +21,7 @@
 
 use List;
 use Map;
-use MasonArgParse;
+use ArgParse;
 use MasonHelp;
 use MasonUtils;
 use Path;

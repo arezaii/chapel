@@ -19,7 +19,7 @@
  */
 
 use List;
-use MasonArgParse;
+use ArgParse;
 use MasonUtils;
 public use MasonHelp;
 const regUrl: string = "https://github.com/chapel-lang/mason-registry";

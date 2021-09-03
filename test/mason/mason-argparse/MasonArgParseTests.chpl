@@ -1,7 +1,7 @@
-use UnitTest;
-use MasonArgParse;
-use List;
+use ArgParse;
 use IO;
+use List;
+use UnitTest;
 
 // a short string opt with single value and expected # values supplied
 proc testSingleStringShortOpt(test: borrowed Test) throws {

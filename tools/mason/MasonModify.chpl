@@ -20,7 +20,7 @@
 
 use FileSystem;
 use Map;
-use MasonArgParse;
+use ArgParse;
 use MasonUtils;
 use Regex;
 use TOML;
