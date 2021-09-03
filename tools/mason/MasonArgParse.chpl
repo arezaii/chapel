@@ -658,11 +658,9 @@ module MasonArgParse {
       return arg;
     }
 
-    // convention would dictate this default to `--`, however since the
-    // chapel runtime currently recognizes and consumes the first `--`
-    // in any command string, we are using `++` as a workaround.
+    // convention would dictate this default to `--`, we use this as default
     // this can be overridden by the developer if they prefer something else
-    proc addPassThrough(delimiter="++") throws {
+    proc addPassThrough(delimiter="--") throws {
       var handler = new owned PassThrough(delimiter);
       _subcommands.append(delimiter);
       _options.add(delimiter, delimiter);

@@ -651,6 +651,19 @@ static ModuleSymbol* parseFile(const char* path,
 
     chplLineno                    = 1;
 
+    // the only reliable way to do this is to split the path on / and then
+    // look at the very last value in the resulting vector to see if it is
+    // MasonArgParse.chpl
+
+    if (modTag != MOD_STANDARD) {
+      std::vector<std::string> pathParts;
+      splitString(std::string(cleanFilename(path)), pathParts, "/");
+
+      if (strcmp(pathParts[pathParts.size() - 1].c_str(), "MasonArgParse.chpl") == 0) {
+
+          mainPreserveDelimiter = true;
+      }
+    }
     if (printModuleFiles && (modTag != MOD_INTERNAL || developer)) {
       if (sFirstFile) {
         fprintf(stderr, "Parsing module files:\n");

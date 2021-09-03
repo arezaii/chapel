@@ -3459,7 +3459,7 @@ proc testPassthrough(test: borrowed Test) throws {
   var myPosArg = parser.addArgument(name="FileName",
                                     defaultValue=none,
                                     numArgs=0..1);
-  var passThrough = parser.addPassThrough("--");
+  var passThrough = parser.addPassThrough();
   //make sure no value currently exists
   test.assertFalse(myPosArg.hasValue());
   test.assertFalse(passThrough.hasValue());
@@ -3478,7 +3478,7 @@ proc testPassthroughWithPositional(test: borrowed Test) throws {
   var myPosArg = parser.addArgument(name="FileName",
                                     defaultValue=none,
                                     numArgs=0..1);
-  var passThrough = parser.addPassThrough("--");
+  var passThrough = parser.addPassThrough();
   //make sure no value currently exists
   test.assertFalse(myPosArg.hasValue());
   test.assertFalse(passThrough.hasValue());
@@ -3498,7 +3498,7 @@ proc testPassthroughWithPositionalNoVals(test: borrowed Test) throws {
   var myPosArg = parser.addArgument(name="FileName",
                                     defaultValue=none,
                                     numArgs=0..1);
-  var passThrough = parser.addPassThrough("--");
+  var passThrough = parser.addPassThrough();
   //make sure no value currently exists
   test.assertFalse(myPosArg.hasValue());
   test.assertFalse(passThrough.hasValue());
@@ -3516,7 +3516,7 @@ proc testPassthroughWithPositionalNoVals(test: borrowed Test) throws {
 proc testSubCmdAndPassThruOnMain(test: borrowed Test) throws {
   var argList = ["progName","-n","20","++","--strArg","passValue","subCmd"];
   var parser = new argumentParser();
-  var passThru = parser.addPassThrough();
+  var passThru = parser.addPassThrough("++");
   var mySubCmd1 = parser.addSubCommand(cmd="subCmd");
   var myStrArg1 = parser.addOption(name="StringOpt",
                                    opts=["-n","--strArg"],
