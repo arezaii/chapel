@@ -60,9 +60,9 @@ comprt: FORCE
 	@$(MAKE) third-party-try-opt
 	@$(MAKE) always-build-test-venv
 	@$(MAKE) always-build-chpldoc
+	@$(MAKE) always-build-mason
 	@$(MAKE) runtime
 	@$(MAKE) modules
-	@$(MAKE) always-build-mason
 
 .PHONY: notcompiler
 notcompiler:
@@ -71,6 +71,7 @@ notcompiler:
 	@$(MAKE) always-build-chpldoc
 	@$(MAKE) runtime
 	@$(MAKE) modules
+
 
 libchplcomp: FORCE
 	@echo "Making the compiler library..."
@@ -142,16 +143,16 @@ always-build-chpldoc: FORCE
 
 .PHONY: always-build-mason
 always-build-mason:
-ifdef CHPL_ALWAYS_BUILD_MASON
-	@$(MAKE) mason
-endif
+	-@if [ -n "$$CHPL_ALWAYS_BUILD_MASON" ]; then \
+	$(MAKE) mason; \
+	fi
 
 
 chplvis: compiler third-party-fltk FORCE
 	cd tools/chplvis && $(MAKE)
 	cd tools/chplvis && $(MAKE) install
 
-mason: chpldoc notcompiler
+mason: third-party-try-re2 chpldoc runtime modules
 	cd tools/mason && $(MAKE) && $(MAKE) install
 
 protoc-gen-chpl: chpldoc notcompiler FORCE
