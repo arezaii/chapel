@@ -18,12 +18,6 @@
  * limitations under the License.
  */
 
-/* Version as of Chapel 1.25 - to be updated each release */
-const spackVersion = new VersionInfo('0.15.4');
-const major = spackVersion.major:string;
-const minor = spackVersion.minor:string;
-const spackBranch = 'releases/v' + '.'.join(major, minor);
-const spackDefaultPath = MASON_HOME + "/spack";
 
 use ArgumentParser;
 use FileSystem;
@@ -35,6 +29,16 @@ use MasonUtils;
 use Path;
 use SpecParser;
 use TOML;
+
+/* Version as of Chapel 1.25 - to be updated each release */
+// note that this has not been updated due to issues it causes with nightly
+// testing. See https://github.com/Cray/chapel-private/issues/3206
+const spackVersion = new programVersion(0,15,4);
+const major = spackVersion.major:string;
+const minor = spackVersion.minor:string;
+const spackBranch = 'releases/v' + '.'.join(major, minor);
+const spackDefaultPath = MASON_HOME + "/spack";
+
 
 proc masonExternal(args: [] string) {
 
@@ -110,8 +114,8 @@ proc masonExternal(args: [] string) {
       // check that after all this, the version of spack is as we expect it
       if getSpackVersion != spackVersion then
         throw new owned MasonError("Spack update or installation failed. \
-                                    Expected v%s, got v%s".format(spackVersion.str(),
-                                                                  getSpackVersion.str()));
+                                    Expected v%s, got v%s".format(spackVersion:string,
+                                                                  getSpackVersion:string));
       exit(0);
     }
     if spackInstalled() {
@@ -165,14 +169,14 @@ proc spackInstalled() throws {
   // if local spack version is lower than required version
   if getSpackVersion < spackVersion && SPACK_ROOT == spackDefaultPath {
     throw new owned MasonError("Mason has been updated and requires a newer " +
-          "version of Spack (%s).".format(spackVersion.str()) +
+          "version of Spack (%s).".format(spackVersion:string) +
           "\nTo use mason external, call: mason external --setup");
   }
   // if local version is a major or minor version higher than required version
-  if !spackVersion.isCompatible(getSpackVersion) {
-    writeln("Your version of Spack (v%s) differs ".format(getSpackVersion.str()) +
+  if !isSpackCompatible(spackVersion, getSpackVersion) {
+    writeln("Your version of Spack (v%s) differs ".format(getSpackVersion:string) +
             "from that supported by Mason " +
-            "(v%s).\nThis may lead to unexpected ".format(spackVersion.str()) +
+            "(v%s).\nThis may lead to unexpected ".format(spackVersion:string) +
             "behavior");
   }
   return true;
@@ -182,7 +186,7 @@ proc spackInstalled() throws {
 proc setupSpack() throws {
   writeln("Installing Spack backend ...");
   const destCLI = MASON_HOME + "/spack/";
-  const spackLatestBranch = ' --branch v' + spackVersion.str() + ' ';
+  const spackLatestBranch = ' --branch v' + spackVersion:string + ' ';
   const destPackages = MASON_HOME + "/spack-registry";
   const spackMasterBranch = ' --branch releases/latest ';
   const statusCLI = cloneSpackRepository(spackLatestBranch, destCLI);
@@ -223,7 +227,7 @@ proc gitFetch(branch: string) {
 
 /* Updates the spack directory used for spack commands */
 private proc updateSpackCommandLine() {
-  const releaseTag = 'v' + spackVersion.str();
+  const releaseTag = 'v' + spackVersion:string;
   var tag = 'refs/tags/' + releaseTag;
   tag = tag + ':' + tag;
   const statusFetch = gitFetch(tag);
@@ -257,15 +261,20 @@ private proc printSpackVersion() {
 }
 
 /* Returns spack version */
-proc getSpackVersion : VersionInfo {
+proc getSpackVersion : programVersion {
   const command = "spack --version";
   const tmpVersion = getSpackResult(command,true).strip();
   // on systems with their own spack, spack --version can provide
   // a version string like x.x.x-xxxx-hash
-  // partitioning the string allows us to separate the major.minor.bug
+  // partitioning the string allows us to separate the major.minor.update
   // from the remaining values
   const version = tmpVersion.partition("-");
-  return new VersionInfo(version[0]);
+  if (!version[0].isEmpty()) {
+    const majMinUp = version[0].split(".");
+    if (majMinUp.size == 3) then
+      return new programVersion(majMinUp[0]:int, majMinUp[1]:int, majMinUp[2]:int);
+  }
+  return spackVersion;
 }
 
 /* Lists available spack packages */
@@ -605,6 +614,15 @@ proc installSpkg(args: [?d] string) throws {
   if status != 0 {
     throw new owned MasonError("Package could not be installed");
   }
+}
+
+proc isSpackCompatible(requiredVersion: programVersion, otherVersion: programVersion) : bool {
+    // checks that a spack version is compatible with this spack version
+    // versions are assumed compatible if major and minor versions match
+    // and patch/update level is the same or greater
+    return requiredVersion.major == otherVersion.major
+           && requiredVersion.minor == otherVersion.minor
+           && requiredVersion.update <= otherVersion.update;
 }
 
 

@@ -29,6 +29,7 @@ public use MasonEnv;
 public use Path;
 public use TOML;
 use Regex;
+public use Version;
 
 
 /* Gets environment variables for spawn commands */
@@ -224,114 +225,18 @@ proc runSpackCommand(command, quiet=false) {
   return sub.exitCode;
 }
 
-// TODO: Can we get away with the Chapel Version object instead?
-record VersionInfo {
-  var major = -1, minor = -1, bug = 0;
-
-  proc init() {
-    major = -1;
-    minor = -1;
-    bug = 0;
-  }
-
-  proc init=(other:VersionInfo) {
-    this.major = other.major;
-    this.minor = other.minor;
-    this.bug   = other.bug;
-  }
-
-  proc init(maj : int, min : int, bug: int) {
-    this.major = maj;
-    this.minor = min;
-    this.bug   = bug;
-  }
-
-  proc init(str:string) {
-    const s : [1..3] string = str.split(".");
-    assert(s.size == 3);
-
-    major = s[1]:int;
-    minor = s[2]:int;
-    bug   = s[3]:int;
-  }
-
-  proc str() {
-    return major:string + "." + minor:string + "." + bug:string;
-  }
-
-  proc cmp(other:VersionInfo) {
-    const A = (major, minor, bug);
-    const B = (other.major, other.minor, other.bug);
-    for i in 0..2 {
-      if A(i) > B(i) then return 1;
-      else if A(i) < B(i) then return -1;
-    }
-    return 0;
-  }
-
-  proc this(i: int): int {
-    select i {
-      when 0 do
-        return this.major;
-      when 1 do
-        return this.minor;
-      when 2 do
-        return this.bug;
-      otherwise
-        halt('Out of bounds access of VersionInfo');
-    }
-  }
-
-  proc containsMax() {
-    return this.major == max(int) || this.minor == max(int) || this.bug == max(int);
-  }
-
-  proc isCompatible(other:VersionInfo) : bool {
-    // checks that a version is compatible with this version
-    // versions are assumed compatible if major and minor versions match
-    // and patch/bug level is the same or greater
-    return this.major == other.major
-           && this.minor == other.minor
-           && this.bug <= other.bug;
-  }
-}
-
-operator VersionInfo.=(ref lhs:VersionInfo, const ref rhs:VersionInfo) {
-  lhs.major = rhs.major;
-  lhs.minor = rhs.minor;
-  lhs.bug   = rhs.bug;
-}
-
-operator VersionInfo.>=(a:VersionInfo, b:VersionInfo) : bool {
-  return a.cmp(b) >= 0;
-}
-operator VersionInfo.<=(a:VersionInfo, b:VersionInfo) : bool {
-  return a.cmp(b) <= 0;
-}
-operator ==(a:VersionInfo, b:VersionInfo) : bool {
-  return a.cmp(b) == 0;
-}
-operator VersionInfo.>(a:VersionInfo, b:VersionInfo) : bool {
-  return a.cmp(b) > 0;
-}
-
-operator VersionInfo.<(a:VersionInfo, b:VersionInfo) : bool {
-  return a.cmp(b) < 0;
-}
 
 
-private var chplVersionInfo = new VersionInfo(-1, -1, -1);
+private var chplVersionInfo = new programVersion(-1, -1, -1);
 /*
    Returns a tuple containing information about the `chpl --version`:
    (major, minor, bugFix, isMaster)
 */
-proc getChapelVersionInfo(): VersionInfo {
-  use Regex;
+proc getChapelVersionInfo(): programVersion {
 
-  if chplVersionInfo(0) == -1 {
-    try {
+  if chplVersionInfo.major == -1 {
 
-      var ret : VersionInfo;
+      chplVersionInfo = new programVersion(chplVersion.major, chplVersion.minor, chplVersion.update);
 
       var process = spawn(["chpl", "--version"], stdout=pipeStyle.pipe);
       process.wait();
@@ -371,13 +276,11 @@ proc getChapelVersionInfo(): VersionInfo {
   return chplVersionInfo;
 }
 
-private var chplVersion = "";
 proc getChapelVersionStr() {
-  if chplVersion == "" {
-    const version = getChapelVersionInfo();
-    chplVersion = version(0):string + "." + version(1):string + "." + version(2):string;
+   if chplVersionInfo.major == -1 {
+     getChapelVersionInfo();
   }
-  return chplVersion;
+  return chplVersionInfo:string;
 }
 
 proc gitC(newDir, command, quiet=false) throws {

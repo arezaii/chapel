@@ -89,11 +89,11 @@ proc masonSearch(ref args: list(string)) {
           }
         } else {
           const ver = findLatest(searchDir + dir);
-          const versionZero = new VersionInfo(0, 0, 0);
+          const versionZero = new programVersion(0, 0, 0);
           if ver != versionZero {
-            results.append(name + " (" + ver.str() + ")");
+            results.append(name + " (" + ver:string + ")");
             packages.append(name);
-            versions.append(ver.str());
+            versions.append(ver:string);
             registries.append(registry);
           }
         }
@@ -218,4 +218,46 @@ proc getPackageScores(res: [] string) {
 
 proc isHidden(name : string) : bool {
   return name.startsWith("_");
+}
+
+/* Search TOML files within a package directory to find the latest package
+   version number that is supported with current Chapel version */
+proc findLatest(packageDir: string): programVersion {
+  use Path;
+
+  var ret = new programVersion(0, 0, 0);
+  const suffix = ".toml";
+  const packageName = basename(packageDir);
+  for manifest in listdir(packageDir, files=true, dirs=false) {
+    // Check that it is a valid TOML file
+    if !manifest.endsWith(suffix) {
+      var warningStr = "File without '.toml' extension encountered - skipping ";
+      warningStr += packageName + " " + manifest;
+      stderr.writeln(warningStr);
+      continue;
+    }
+
+    // Skip packages that are out of version bounds
+    const chplVersion = getChapelVersionInfo();
+
+    const manifestReader = openreader(packageDir + '/' + manifest);
+    const manifestToml = owned.create(parseToml(manifestReader));
+    const brick = manifestToml['brick'];
+    var (low, high) = parseChplVersion(brick);
+    if chplVersion < low || chplVersion > high then continue;
+
+    // Check that Chapel version is supported
+    const end = manifest.size - suffix.size;
+    const ver = new programVersion(manifest[0]:int, manifest[2]:int, manifest[4]:int);
+    if ver > ret then ret = ver;
+  }
+  return ret;
+}
+
+/* Print a TOML file. Expects full path. */
+proc showToml(tomlFile : string) {
+  const openFile = openreader(tomlFile);
+  const toml = owned.create(parseToml(openFile));
+  writeln(toml);
+  openFile.close();
 }

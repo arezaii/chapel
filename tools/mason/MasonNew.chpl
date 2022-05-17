@@ -232,9 +232,10 @@ proc previewMasonFile(packageName, version, chapelVersion, license) {
 
 /* Perform validation checks on Chapel Version */
 proc validateChplVersion(chapelVersion) throws {
-  var low, hi : VersionInfo;
+  var low, hi : programVersion;
   const tInfo = getChapelVersionInfo();
-  const current = new VersionInfo(tInfo(0), tInfo(1), tInfo(2));
+  const current = new programVersion(tInfo.major, tInfo.minor, tInfo.update);
+
   var ret = false;
   (low, hi) = checkChplVersion(chapelVersion, low, hi);
   ret = low <= current && current <= hi;
