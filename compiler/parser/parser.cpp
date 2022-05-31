@@ -36,9 +36,10 @@
 #include "symbol.h"
 #include "wellknown.h"
 #include "misc.h"
+#include <dirent.h>
 
 #include "chpl/parsing/parsing-queries.h"
-
+extern bool fSearchMasonHome;
 // Turn this on to dump AST/uAST when using --dyno.
 #define DUMP_WHEN_CONVERTING_UAST_TO_AST 0
 
@@ -240,6 +241,31 @@ void setupModulePaths() {
   sStdModPath.add(astr(CHPL_HOME, "/", modulesRoot, "/dists"));
 
   sStdModPath.add(astr(CHPL_HOME, "/", modulesRoot, "/dists/dims"));
+
+  // search the MASON_HOME/src/ path for for folder, add each
+  // of them + /src to masonPackagePaths
+  // TODO: refactor this into a central function that can be used here and in
+  // dyno.
+  std::string MASON_HOME;
+  if (fSearchMasonHome) {
+    if (const char* masonVarPath = getenv("MASON_HOME")) {
+      MASON_HOME = masonVarPath;
+
+      struct dirent *entry;
+      DIR *dir = opendir(astr(masonVarPath,"/src"));
+      if (dir == NULL) {
+        USR_FATAL("Directed to search MASON_HOME, "
+                    "but it doesn't appear to be a directory");
+      }
+
+      while ((entry = readdir(dir)) != NULL) {
+        if (strncmp(entry->d_name, ".", 1)==0) continue;
+          addFlagModulePath(astr(MASON_HOME.c_str(),
+                                 "/src/",entry->d_name,"/src"));
+      }
+      closedir(dir);
+    }
+  }
 
   if (const char* envvarpath  = getenv("CHPL_MODULE_PATH")) {
     char  path[FILENAME_MAX + 1];

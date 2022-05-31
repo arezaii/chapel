@@ -229,7 +229,8 @@ void setupModuleSearchPaths(Context* context,
                             const std::string& chplComm,
                             const std::string& chplSysModulesSubdir,
                             const std::string& chplModulePath,
-                            const std::vector<std::string>& cmdLinePaths) {
+                            const std::vector<std::string>& cmdLinePaths,
+                            const std::vector<std::string>& masonPackagePaths) {
 
   std::string modRoot;
   if (!minimalModules) {
@@ -277,6 +278,12 @@ void setupModuleSearchPaths(Context* context,
 
   // Add paths from the command line
   for (const auto& p : cmdLinePaths) {
+    searchPath.push_back(p);
+  }
+
+  // Add paths from MASON_HOME
+  // TODO: why does this appear to make no difference?
+  for (const auto& p : masonPackagePaths) {
     searchPath.push_back(p);
   }
 

@@ -54,6 +54,7 @@
 #include <string>
 #include <sstream>
 #include <map>
+#include <dirent.h>
 
 #ifdef HAVE_LLVM
 #include "llvm/Config/llvm-config.h"
@@ -304,6 +305,8 @@ bool fDynoCompilerLibrary = true;
 bool fDynoDebugTrace = false;
 size_t fDynoBreakOnHash = 0;
 
+bool fSearchMasonHome = false;
+
 int fGPUBlockSize = 0;
 char fCUDAArch[16] = "sm_60";
 
@@ -313,6 +316,8 @@ std::vector<std::pair<std::string, std::string>> gDynoParams;
 static bool compilerSetChplLLVM = false;
 
 static std::vector<std::string> cmdLineModPaths;
+
+static std::vector<std::string> masonPackagePaths;
 
 /* Note -- LLVM provides a way to get the path to the executable...
 // This function isn't referenced outside its translation unit, but it
@@ -1216,7 +1221,7 @@ static ArgumentDescription arg_desc[] = {
  {"dyno", ' ', NULL, "Enable [disable] using dyno compiler library", "N", &fDynoCompilerLibrary, "CHPL_DYNO_COMPILER_LIBRARY", NULL},
  {"dyno-debug-trace", ' ', NULL, "Enable [disable] debug-trace output when using dyno compiler library", "N", &fDynoDebugTrace, "CHPL_DYNO_DEBUG_TRACE", NULL},
  {"dyno-break-on-hash", ' ' , NULL, "Break when query with given hash value is executed when using dyno compiler library", "U", &fDynoBreakOnHash, "CHPL_DYNO_BREAK_ON_HASH", NULL},
-
+ {"search-mason-home", ' ' , NULL, "Search for modules under the src directory found in MASON_HOME", "N", &fSearchMasonHome, "CHPL_SEARCH_MASON_HOME", NULL},
 
  DRIVER_ARG_PRINT_CHPL_HOME,
  DRIVER_ARG_LAST
@@ -1827,6 +1832,31 @@ int main(int argc, char* argv[]) {
       if (const char* envvarpath  = getenv("CHPL_MODULE_PATH")) {
         chpl_module_path = envvarpath;
       }
+
+      // search the MASON_HOME/src/ path for for folder, add each
+      // of them + /src to masonPackagePaths
+      std::string MASON_HOME;
+      if (fSearchMasonHome) {
+        if (const char* masonVarPath = getenv("MASON_HOME")) {
+          MASON_HOME = masonVarPath;
+
+          struct dirent *entry;
+          DIR *dir = opendir(astr(masonVarPath,"/src"));
+          if (dir == NULL) {
+            USR_FATAL("Directed to search MASON_HOME, "
+                       "but it doesn't appear to be a directory");
+          }
+
+          while ((entry = readdir(dir)) != NULL) {
+            if (strncmp(entry->d_name, ".", 1)==0) continue;
+              masonPackagePaths.push_back(astr(MASON_HOME.c_str(),
+                                               "/src/",entry->d_name,"/src"));
+          }
+          closedir(dir);
+        }
+      }
+
+
       chpl::parsing::setupModuleSearchPaths(gContext,
                                             CHPL_HOME,
                                             fMinimalModules,
@@ -1836,7 +1866,8 @@ int main(int argc, char* argv[]) {
                                             CHPL_COMM,
                                             CHPL_SYS_MODULES_SUBDIR,
                                             chpl_module_path,
-                                            cmdLineModPaths);
+                                            cmdLineModPaths,
+                                            masonPackagePaths);
     }
     postprocess_args();
 
