@@ -171,7 +171,7 @@ void setupModuleSearchPaths(Context* context,
                             const std::string& chplSysModulesSubdir,
                             const std::string& chplModulePath,
                             const std::vector<std::string>& cmdLinePaths,
-                            const std::vector<std::string>& masonPackagePaths);
+                            const std::vector<const char*>& masonPackagePaths);
 
 /**
  Returns true if the ID corresponds to something in an internal module.

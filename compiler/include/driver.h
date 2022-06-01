@@ -289,4 +289,7 @@ extern chpl::Context* gContext;
 
 extern std::vector<std::pair<std::string, std::string>> gDynoParams;
 
+// search for module paths in MASON_HOME and add them to pathStorage
+void searchMasonHomePaths(std::vector<const char*>& pathStorage);
+
 #endif
