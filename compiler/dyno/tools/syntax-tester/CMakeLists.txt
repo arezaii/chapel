@@ -15,5 +15,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-add_subdirectory(chpldoc)
-add_subdirectory(syntax-tester)
+add_executable(syntax-test "syntax-test.cpp")
+# TODO: this is temporary so I could use std::filesystem
+set_property(TARGET syntax-test PROPERTY CXX_STANDARD 17)
+target_link_libraries(syntax-test $<TARGET_OBJECTS:libdyno-obj>)
+target_include_directories(syntax-test PUBLIC
+                           ${CHPL_MAIN_INCLUDE_DIR}
+                           ${CHPL_INCLUDE_DIR})
+add_dependencies(syntax-test libdyno-obj)
