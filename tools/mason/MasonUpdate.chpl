@@ -180,12 +180,12 @@ proc updateRegistry(skipUpdate: bool, show=true) {
 
 proc verifyChapelVersion(brick:borrowed Toml) {
   const tupInfo = getChapelVersionInfo();
-  const current = new VersionInfo(tupInfo(0), tupInfo(1), tupInfo(2));
-  var low, hi : VersionInfo;
+  const current = createVersion(tupInfo.major, tupInfo.minor, tupInfo.update);
+  var low, hi = createVersion(zero,zero,zero);
 
   var ret = false;
 
-  (low, hi) = parseChplVersion(brick);
+  parseChplVersion(brick, low, hi);
   ret = low <= current && current <= hi;
 
   return (ret, low, hi);
@@ -193,11 +193,11 @@ proc verifyChapelVersion(brick:borrowed Toml) {
 
 proc prettyVersionRange(low, hi) {
   if low == hi then
-    return low.str();
-  else if hi.containsMax() then
-    return low.str() + " or later";
+    return (low:string).replace("version ", "");
+  else if hi.major == max(int) || hi.minor == max(int) || hi.update == max(int) then
+    return (low:string).replace("version ", "") + " or later";
   else
-    return low.str() + ".." + hi.str();
+    return (low:string).replace("version ", "") + ".." + (hi:string).replace("version ", "");
 }
 
 proc chplVersionError(brick:borrowed Toml) {

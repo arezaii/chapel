@@ -89,11 +89,11 @@ proc masonSearch(ref args: list(string)) {
           }
         } else {
           const ver = findLatest(searchDir + dir);
-          const versionZero = new VersionInfo(0, 0, 0);
+          const versionZero = createVersion(zero, zero, zero);
           if ver != versionZero {
-            results.append(name + " (" + ver.str() + ")");
+            results.append(name + " (" + (ver:string).replace("version ","") + ")");
             packages.append(name);
-            versions.append(ver.str());
+            versions.append((ver:string).replace("version ",""));
             registries.append(registry);
           }
         }

@@ -239,11 +239,11 @@ proc previewMasonFile(packageName, version, chapelVersion, license) {
 
 /* Perform validation checks on Chapel Version */
 proc validateChplVersion(chapelVersion) throws {
-  var low, hi : VersionInfo;
+  var low, hi = createVersion(zero,zero,zero);
   const tInfo = getChapelVersionInfo();
-  const current = new VersionInfo(tInfo(0), tInfo(1), tInfo(2));
+  const current = createVersion(tInfo.major, tInfo.minor, tInfo.update);
   var ret = false;
-  (low, hi) = checkChplVersion(chapelVersion, low, hi);
+  checkChplVersion(chapelVersion, low, hi);
   ret = low <= current && current <= hi;
   if !ret then throw new owned MasonError("Your current " +
     "Chapel version ( " + getChapelVersionStr() + " ) is not compatible with this chplVersion.");
