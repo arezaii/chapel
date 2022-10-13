@@ -227,16 +227,16 @@ proc runSpackCommand(command, quiet=false) {
 
 
 
-private var chplVersionInfo = new programVersion(-1, -1, -1);
+private var chplVersionInfo = new version(-1, -1, -1);
 /*
    Returns a tuple containing information about the `chpl --version`:
    (major, minor, bugFix, isMaster)
 */
-proc getChapelVersionInfo(): programVersion {
+proc getChapelVersionInfo(): version {
 
   if chplVersionInfo.major == -1 {
-
-      chplVersionInfo = new programVersion(chplVersion.major, chplVersion.minor, chplVersion.update);
+    try {
+      chplVersionInfo = new version(chplVersion.major, chplVersion.minor, chplVersion.update);
 
       var process = spawn(["chpl", "--version"], stdout=pipeStyle.pipe);
       process.wait();
@@ -265,7 +265,7 @@ proc getChapelVersionInfo(): programVersion {
       }
 
       const split = semver.split(".");
-      chplVersionInfo = new VersionInfo(split[0]:int, split[1]:int, split[2]:int);
+      chplVersionInfo = new version(split[0]:int, split[1]:int, split[2]:int);
     } catch e : Error {
       stderr._writeln("Error while getting Chapel version:");
       stderr._writeln(e.message());
@@ -454,11 +454,11 @@ proc getDepToml(depName: string, depVersion: string) throws {
       const name = dir.replace("/", "");
       if pattern.search(name) {
         const ver = findLatest(searchDir + dir);
-        const versionZero = new VersionInfo(0, 0, 0);
+        const versionZero = new version(0, 0, 0);
         if ver != versionZero {
-          results.append(name + " (" + ver.str() + ")");
+          results.append(name + " (" + ver:string + ")");
           packages.append(name);
-          versions.append(ver.str());
+          versions.append(ver:string);
           registries.append(registry);
         }
       }
@@ -479,10 +479,10 @@ proc getDepToml(depName: string, depVersion: string) throws {
 
 /* Search TOML files within a package directory to find the latest package
    version number that is supported with current Chapel version */
-proc findLatest(packageDir: string): VersionInfo {
+proc findLatest(packageDir: string): version {
   use Path;
 
-  var ret = new VersionInfo(0, 0, 0);
+  var ret = new version(0, 0, 0);
   const suffix = ".toml";
   const packageName = basename(packageDir);
   for manifest in listdir(packageDir, files=true, dirs=false) {
@@ -505,7 +505,9 @@ proc findLatest(packageDir: string): VersionInfo {
 
     // Check that Chapel version is supported
     const end = manifest.size - suffix.size;
-    const ver = new VersionInfo(manifest[0..<end]);
+    const s : [0..2] string = manifest[0..<end].split(".");
+    assert(s.size == 3);
+    const ver = new version(s[0]:int, s[1]:int, s[2]:int);
     if ver > ret then ret = ver;
   }
   return ret;
@@ -513,7 +515,7 @@ proc findLatest(packageDir: string): VersionInfo {
 
 /* Reads the Chapel version specified by a mason project's
    TOML file and returns the min and max compatible versions */
-proc parseChplVersion(brick: borrowed Toml?): (VersionInfo, VersionInfo) {
+proc parseChplVersion(brick: borrowed Toml?): (version, version) {
   use Regex;
 
   if brick == nil {
@@ -534,7 +536,7 @@ proc parseChplVersion(brick: borrowed Toml?): (VersionInfo, VersionInfo) {
   }
 
   const chplVersion = brick!["chplVersion"]!.s;
-  var low, high : VersionInfo;
+  var low, high : version;
 
   try {
     var res = checkChplVersion(chplVersion, low, high);
@@ -554,7 +556,7 @@ proc parseChplVersion(brick: borrowed Toml?): (VersionInfo, VersionInfo) {
    a tuple of the low, high supported verisons.*/
 proc checkChplVersion(chplVersion, low, high) throws {
   use Regex;
-  var lo, hi : VersionInfo;
+  var lo, hi : version;
   const formatMessage = "\n\n" +
     "chplVersion format must be '<version>..<version>' or '<version>'\n" +
     "A <version> must be in one of the following formats:\n" +
@@ -572,8 +574,8 @@ proc checkChplVersion(chplVersion, low, high) throws {
       throw new owned MasonError("Unbounded chplVersion ranges are not allowed." + formatMessage);
     }
 
-    proc parseString(ver:string): VersionInfo throws {
-      var ret : VersionInfo;
+    proc parseString(ver:string): version throws {
+      var ret = new version(0,0,0);
 
       // Finds 'x.x' or 'x.x.x' where x is a positive number
       const pattern = "^(\\d+\\.\\d+(\\.\\d+)?)$";
@@ -584,7 +586,7 @@ proc checkChplVersion(chplVersion, low, high) throws {
       const nums = for s in semver.split(".") do s:int;
       ret.major = nums[0];
       ret.minor = nums[1];
-      if nums.size == 3 then ret.bug = nums[2];
+      if nums.size == 3 then ret.update = nums[2];
 
       return ret;
     }
@@ -592,12 +594,12 @@ proc checkChplVersion(chplVersion, low, high) throws {
     lo = parseString(versions[0]);
 
     if (versions.size == 1) {
-      hi = new VersionInfo(max(int), max(int), max(int));
+      hi = new version(max(int), max(int), max(int));
     } else {
       hi = parseString(versions[1]);
     }
      if (lo <= hi) == false then
-      throw new owned MasonError("Lower bound of chplVersion must be <= upper bound: " + lo.str() + " > " + hi.str());
+      throw new owned MasonError("Lower bound of chplVersion must be <= upper bound: " + lo:string + " > " + hi:string);
 
       return (lo, hi);
 }

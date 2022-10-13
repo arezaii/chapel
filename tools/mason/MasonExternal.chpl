@@ -33,7 +33,7 @@ use TOML;
 /* Version as of Chapel 1.25 - to be updated each release */
 // note that this has not been updated due to issues it causes with nightly
 // testing. See https://github.com/Cray/chapel-private/issues/3206
-const spackVersion = new programVersion(0,15,4);
+const spackVersion = new version(0,15,4);
 const major = spackVersion.major:string;
 const minor = spackVersion.minor:string;
 const spackBranch = 'releases/v' + '.'.join(major, minor);
@@ -261,18 +261,19 @@ private proc printSpackVersion() {
 }
 
 /* Returns spack version */
-proc getSpackVersion : programVersion {
+proc getSpackVersion : version {
   const command = "spack --version";
   const tmpVersion = getSpackResult(command,true).strip();
   // on systems with their own spack, spack --version can provide
   // a version string like x.x.x-xxxx-hash
   // partitioning the string allows us to separate the major.minor.update
   // from the remaining values
-  const version = tmpVersion.partition("-");
-  if (!version[0].isEmpty()) {
-    const majMinUp = version[0].split(".");
-    if (majMinUp.size == 3) then
-      return new programVersion(majMinUp[0]:int, majMinUp[1]:int, majMinUp[2]:int);
+  const versionInfo = tmpVersion.partition("-");
+  if (!versionInfo[0].isEmpty()) {
+    const majMinUp = versionInfo[0].split(".");
+    if (majMinUp.size == 3) {
+      return new version(majMinUp[0]:int, majMinUp[1]:int, majMinUp[2]:int);
+    }
   }
   return spackVersion;
 }
@@ -616,7 +617,7 @@ proc installSpkg(args: [?d] string) throws {
   }
 }
 
-proc isSpackCompatible(requiredVersion: programVersion, otherVersion: programVersion) : bool {
+proc isSpackCompatible(requiredVersion: version, otherVersion: version) : bool {
     // checks that a spack version is compatible with this spack version
     // versions are assumed compatible if major and minor versions match
     // and patch/update level is the same or greater
