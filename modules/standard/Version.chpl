@@ -315,8 +315,8 @@ module Version {
     }
 
     pragma "no doc"
-    proc init(major: int,
-              minor: int,
+    proc init(major: int = 0,
+              minor: int = 0,
               update: int = 0,
               commit: string = "") {
       this.major = major;
