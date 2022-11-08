@@ -14,6 +14,11 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+add_executable(formatter "formatter.cpp")
+set_property(TARGET formatter PROPERTY CXX_STANDARD 14)
+target_link_libraries(formatter libdyno)
+target_include_directories(formatter PUBLIC
+                           ${CHPL_MAIN_INCLUDE_DIR}
+                           ${CHPL_INCLUDE_DIR})
 
-add_subdirectory(chpldoc)
-add_subdirectory(formatter)
+add_dependencies(formatter libdyno)
