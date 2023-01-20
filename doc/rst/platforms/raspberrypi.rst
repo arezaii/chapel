@@ -22,7 +22,7 @@ To build Chapel with support for Raspberry Pi, set:
 Clustering the Pis
 ------------------
 
-If you have a working cluster already, you can forgo this section of the guide. 
+If you have a working cluster already, you can forgo this section of the guide.
 
 This section describes just one of several ways to set up a Pi cluster. This section assumes that the user has already equipped each Pi with an SD card flashed with the operating system of the users' choice -- for example, `Raspberry Pi OS Lite (Legacy) <https://downloads.raspberrypi.org/raspios_oldstable_lite_armhf/images/raspios_oldstable_lite_armhf-2022-09-26/2022-09-22-raspios-buster-armhf-lite.img.xz>`_.
 
@@ -69,13 +69,13 @@ For each non-master node, run:
 
 .. code-block:: bash
 
-    ssh-copy-id 10.0.0.1 
+    ssh-copy-id 10.0.0.1
 
 to copy that node's SSH key to the master node. Once that has been done on all non-master nodes, copy the master node's SSH key to all other nodes in the cluster by running the same command from the master node, using the IP addresses of the other nodes as the command argument.
 
 5. Set up a shared filesystem
 
-In order for each node to reference the same Chapel executable, the executable must be stored in a shared filesystem that all of the nodes in the cluster have simultaneous access to. There are several ways to do this. 
+In order for each node to reference the same Chapel executable, the executable must be stored in a shared filesystem that all of the nodes in the cluster have simultaneous access to. There are several ways to do this.
 
 One way is to mount a flash drive and export it as a network file system to the other nodes in the cluster. The steps to achieve this are described in sections 4.1.1 to 4.1.2 from this `Medium article <https://glmdev.medium.com/building-a-raspberry-pi-cluster-784f0df9afbd>`_.
 
@@ -87,15 +87,15 @@ For more in-depth information about GASNet or multilocale execution with Chapel,
 refer to the `GASNet documentation`_ and :ref:`readme-multilocale` page,
 respectively.
 
-Ensure that the Chapel compiler is built on each node in your cluster, each node is running the same version of Chapel, and that all nodes in the cluster have SSH access to each other. 
+Ensure that the Chapel compiler is built on each node in your cluster, each node is running the same version of Chapel, and that all nodes in the cluster have SSH access to each other.
 
 Complete these steps on the master node of your cluster.
 
 1. Set Chapel to use GASNet for multilocale execution
-   
+
 Set the following environment variable:
 
-.. code-block:: bash   
+.. code-block:: bash
 
     CHPL_COMM=gasnet
 
@@ -123,7 +123,7 @@ Running Multilocale Chapel Programs
 
 This is necessary if your Chapel executables are not output to the shared filesystem by default.
 
-eg. 
+eg.
 
 .. code-block:: bash
 
@@ -137,3 +137,6 @@ Run the program as you would any other multilocale program:
 .. code-block:: bash
 
     /clusterfs/hello -nl 2
+
+
+.. _GASNet documentation: https://gasnet.lbl.gov/dist/udp-conduit/README
