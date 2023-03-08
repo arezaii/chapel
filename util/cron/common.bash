@@ -6,6 +6,9 @@
 CWD=$(cd $(dirname ${BASH_SOURCE[0]}) ; pwd)
 source $CWD/functions.bash
 
+# Set verbose makefiles on to see gcc and linker flags used to build 'chpl'
+export CMAKE_VERBOSE_MAKEFILE=ON
+
 # For our internal testing, this is necessary to get the latest version of gcc
 # on the system.
 if [ -z "${CHPL_SOURCED_BASHRC}" -a -f ~/.bashrc ] ; then
