@@ -128,7 +128,8 @@ OPTIONS
 
     [Don't] warn about attribute tool names that aren't recognized. Without this
     warning, attributes belonging to unknown tools will be silently ignored.
-    The default is to warn about all unkown tool names.
+    The default is to warn about all unknown tool names. The only tool name that
+    is currently known without needing to be specified is `chpldoc`.
 
 **\--using-attribute-toolname <**\ *toolname*\ **>**
 

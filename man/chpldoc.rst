@@ -78,7 +78,8 @@ reStructuredText as an intermediate format.
 
     Provide a tool name whose use in an attribute will not trigger an
     "unknown tool name" warning. To provide multiple tool names, use one
-    **\--using-attribute-toolname** flag per name.
+    **\--using-attribute-toolname** flag per name. The only tool name that
+    is currently known without needing to be specified is `chpldoc`.
 
 *Information Options*
 
