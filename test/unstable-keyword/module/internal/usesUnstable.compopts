@@ -1,0 +1,3 @@
+ # usesUnstable.unset.good
+--no-warn-unstable # usesUnstable.unset.good
+--warn-unstable # usesUnstable.warn.good

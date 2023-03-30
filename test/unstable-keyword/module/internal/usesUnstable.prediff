@@ -1,0 +1,7 @@
+#!/bin/bash
+
+# Find the line number of the inserted message
+message_line=$(grep -n "proc testDummy()" ${CHPL_HOME}/modules/standard/Math.chpl | awk -F ':' '{print $1}')
+
+# Remove the message line
+sed -i "${message_line}d" ${CHPL_HOME}/modules/standard/Math.chpl

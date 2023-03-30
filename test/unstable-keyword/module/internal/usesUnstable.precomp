@@ -1,0 +1,7 @@
+#!/bin/bash
+
+# Find the line number of the last closing curly brace
+last_brace_line=$(grep -n "}" ${CHPL_HOME}/modules/standard/Math.chpl | tail -1 | awk -F ':' '{print $1}')
+
+# Insert the message just before the last closing curly brace
+sed -i "${last_brace_line}i proc testDummy() {use Map;var m = new map(int, int, parSafe=true);}" ${CHPL_HOME}/modules/standard/Math.chpl

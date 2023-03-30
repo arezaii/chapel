@@ -1,0 +1,2 @@
+$CHPL_HOME/modules/standard/Math.chpl:164: In function 'testDummy':
+$CHPL_HOME/modules/standard/Math.chpl:164: warning: 'Map.parSafe' is unstable
