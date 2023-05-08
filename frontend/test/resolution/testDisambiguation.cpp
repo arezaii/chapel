@@ -265,6 +265,29 @@ static void test3() {
         f(x);
       )"""",
     1);
+
+  // updated disambiguation based on width of argument
+  // checkCalledIndex(context,
+  //     R""""(
+  //       proc f(arg: int(8)) { }                   // 1
+  //       proc f(arg: uint(64)) { }                 // 2
+  //       var x: int(64);
+  //       f(x);
+  //     )"""",
+  //   2); // I believe the answer should be 2 once disambiguation changes are made to match prod
+
+  // updated disambiguation based on visibility of proc
+  checkCalledIndex(context,
+      R""""(
+        proc f(arg: int) { }                     // 1
+        {
+          proc f(arg) { }                        // 2
+
+          var x = 1;
+          f(x);
+        }
+      )"""",
+    1); // today the answer is 1, but I believe it should be 2 once disambiguation changes are made to match prod
 }
 
 int main() {
