@@ -1298,6 +1298,21 @@ module String {
     return getCStr(this);
   }
 
+  private inline proc copyIfNeeded(const ref s:string) : string {
+    var localS:string;
+    // gets a local copy or alias if already local
+    initWithBorrowedBuffer(localS, s);
+    return localS;
+  }
+
+  inline proc string.nullTerminatedCopyArg(hiddenArg=copyIfNeeded(this)): c_ptrConst(c_char) {
+    return c_ptrToConst(hiddenArg):c_ptrConst(c_char);
+  }
+
+  proc string.nullTerminatedCopy(): nullTerminatedCopyManager() {
+    return new nullTerminatedCopyManager(this);
+  }
+
   /*
     Returns a :type:`~Bytes.bytes` from the given :type:`string`. If the
     string contains some escaped non-UTF8 bytes, `policy` argument determines

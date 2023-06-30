@@ -513,6 +513,40 @@ module Bytes {
     }
   }
 
+  //BytesStringCommon.chpl
+ record localizedStringBytesManager {
+  var _localObj: ?t;
+  var _alias = false;
+  proc init(const ref x: string) {
+
+    _alias = bytes.createBorrowingBuffer(x, _buf);
+  }
+  proc init(const ref x: bytes) {
+
+    _alias = maybeCopyBuffer(x, _buf);
+  }
+  proc enterThis(): c_ptrConst(c_char) { return _buf; }
+  proc leaveThis(in err) throws { if err then throw err; }
+  proc deinit() { if !_alias then destroy(_buf); }
+  proc destroy(ref buf: c_ptrConst(c_char)) {
+    if buf != nil then deallocate(buf); buf = nil;
+  }
+  proc maybeCopyBuffer(const ref x : ?t, ref buf : c_ptrConst(c_char)) : bool {
+    // gets a local copy or alias if already local
+    const isRemote = x.locale_id != chpl_nodeID;
+    if isRemote {
+      buf = bufferCopyRemote(x.locale_id, x.buff, x.numBytes):c_ptrConst(c_char);
+    } else {
+      buf = x.buff:c_ptrConst(c_char);
+      // don't modify the buffer of the reference, just make sure it is
+      // terminated with a NULL
+      assert(buf[x.buffLen] == 0:c_char);
+      return true;
+    }
+    return false;
+  }
+}
+
 
   /*
     Gets a `c_string` from a :type:`bytes`. The returned `c_string`
@@ -540,6 +574,10 @@ module Bytes {
    */
   inline proc bytes.c_str(): c_string {
     return getCStr(this);
+  }
+
+  proc bytes.nullTerminatedCopy(): nullTerminatedCopyManager() {
+    return new nullTerminatedCopyManager(this);
   }
 
   /*
