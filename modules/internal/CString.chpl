@@ -29,16 +29,16 @@ module CString {
   //inline proc c_string.c_str() return this;
 
   pragma "init copy fn"
-  inline proc chpl__initCopy(x: c_string, definedConst: bool) : c_string {
+  inline proc chpl__initCopy(x: c_ptrConst(c_uchar), definedConst: bool) : c_ptrConst(c_uchar) {
     return x;
   }
 
   pragma "auto copy fn"
-  inline proc chpl__autoCopy(x: c_string, definedConst: bool) : c_string {
+  inline proc chpl__autoCopy(x: c_ptrConst(c_uchar), definedConst: bool) : c_ptrConst(c_uchar) {
     return x;
   }
 
-  inline operator c_string.==(s0: c_string, s1: c_string) {
+  inline operator c_ptrConstUint8.==(s0: c_ptrConst(c_uchar), s1: c_ptrConst(c_uchar)) {
     return __primitive("string_compare", s0, s1) == 0;
   }
 
@@ -50,7 +50,7 @@ module CString {
 //    return __primitive("string_compare", s0, s1.c_str()) == 0;
 //  }
 
-  inline operator c_string.!=(s0: c_string, s1: c_string) {
+  inline operator c_ptrConstUint8.!=(s0: c_ptrConst(c_uchar), s1: c_ptrConst(c_uchar)) {
     return __primitive("string_compare", s0, s1) != 0;
   }
 
@@ -62,59 +62,59 @@ module CString {
 //    return __primitive("string_compare", s0, s1.c_str()) != 0;
 //  }
 
-  inline operator c_string.<=(a: c_string, b: c_string) {
+  inline operator c_ptrConstUint8.<=(a: c_ptrConst(c_uchar), b: c_ptrConst(c_uchar)) {
     return (__primitive("string_compare", a, b) <= 0);
   }
 
-  inline operator c_string.>=(a: c_string, b: c_string) {
+  inline operator c_ptrConstUint8.>=(a: c_ptrConst(c_uchar), b: c_ptrConst(c_uchar)) {
     return (__primitive("string_compare", a, b) >= 0);
   }
 
-  inline operator c_string.<(a: c_string, b: c_string) {
+  inline operator c_ptrConstUint8.<(a: c_ptrConst(c_uchar), b: c_ptrConst(c_uchar)) {
     return (__primitive("string_compare", a, b) < 0);
   }
 
-  inline operator c_string.>(a: c_string, b: c_string) {
+  inline operator c_ptrConstUint8.>(a: c_ptrConst(c_uchar), b: c_ptrConst(c_uchar)) {
     return (__primitive("string_compare", a, b) > 0);
   }
 
-  inline operator c_string.=(ref a: c_string, b: c_string) {
+  inline operator c_ptrConstUint8.=(ref a: c_ptrConst(c_uchar), b: c_ptrConst(c_uchar)) {
     __primitive("=", a, b);
   }
 
   // let us set c_strings to NULL
-  inline operator c_string.=(ref a:c_string, b:_nilType) { a = nil:c_string; }
+  inline operator c_ptrConstUint8.=(ref a:c_ptrConst(c_uchar), b:_nilType) { a = nil:c_ptrConst(c_uchar); }
 
   // for a to be a valid c_string after this function it must be on the same
   // locale as b
-  inline operator c_string.=(ref a: c_string, b: string) {
-    __primitive("=", a, c_ptrToConst_helper(b):c_string);
+  inline operator c_ptrConstUint8.=(ref a: c_ptrConst(c_uchar), b: string) {
+    __primitive("=", a, c_ptrToConst_helper(b));
   }
 
   //
   // casts from nil to c_string
   //
-  inline operator :(x: _nilType, type t:c_string) {
+  inline operator :(x: _nilType, type t:c_ptrConst(c_uchar)) {
     return __primitive("cast", t, x);
   }
 
   //
   // casts from c_string to c_ptr(void)
   //
-  inline operator :(x: c_string, type t:c_ptr(void)) {
+  inline operator :(x: c_ptrConst(c_uchar), type t:c_ptr(void)) {
     return __primitive("cast", t, x);
   }
   //
   // casts from c_ptr(void) to c_string
   //
-  inline operator :(x: c_ptr(void), type t:c_string) {
+  inline operator :(x: c_ptr(void), type t:c_ptrConst(c_uchar)) {
     return __primitive("cast", t, x);
   }
 
   //
   // casts from c_string to c_ptr(c_char/int(8)/uint(8))
   //
-  inline operator :(x: c_string, type t:c_ptr(?eltType))
+  inline operator :(x: c_ptrConst(c_uchar), type t:c_ptr(?eltType))
     where eltType == c_char || eltType == int(8) || eltType == uint(8)
   {
     return __primitive("cast", t, x);
@@ -122,7 +122,7 @@ module CString {
   //
   // casts from c_string to c_ptrConst(c_char/int(8)/uint(8))
   //
-  inline operator :(x: c_string, type t:c_ptrConst(?eltType))
+  inline operator :(x: c_ptrConst(c_uchar), type t:c_ptrConst(?eltType))
     where eltType == c_char || eltType == int(8) || eltType == uint(8)
   {
     return __primitive("cast", t, x);
@@ -130,7 +130,7 @@ module CString {
   //
   // casts from c_ptr(c_char/int(8)/uint(8)) to c_string
   //
-  inline operator :(x: c_ptr(?eltType), type t:c_string)
+  inline operator :(x: c_ptr(?eltType), type t:c_ptrConst(c_uchar))
     where eltType == c_char || eltType == int(8) || eltType == uint(8)
   {
     return __primitive("cast", t, x);
@@ -138,7 +138,7 @@ module CString {
   //
   // casts from c_ptrConst(c_char/int(8)/uint(8)) to c_string
   //
-  inline operator :(x: c_ptrConst(?eltType), type t:c_string)
+  inline operator :(x: c_ptrConst(?eltType), type t:c_ptrConst(c_uchar))
     where eltType == c_char || eltType == int(8) || eltType == uint(8)
   {
     return __primitive("cast", t, x);
@@ -147,10 +147,10 @@ module CString {
   //
   // casts from c_string to bool types
   //
-  inline operator :(x:c_string, type t:chpl_anybool) throws {
+  inline operator :(x:c_ptrConst(c_uchar), type t:chpl_anybool) throws {
     var chplString: string;
     try! {
-      chplString = string.createCopyingBuffer(x:c_ptrConst(c_uchar));
+      chplString = string.createCopyingBuffer(x);
     }
     return try (chplString.strip()): t;
   }
@@ -158,10 +158,10 @@ module CString {
   //
   // casts from c_string to integer types
   //
-  inline operator :(x:c_string, type t:integral) throws {
+  inline operator :(x:c_ptrConst(c_uchar), type t:integral) throws {
     var chplString: string;
     try! {
-      chplString = string.createCopyingBuffer(x:c_ptrConst(c_uchar));
+      chplString = string.createCopyingBuffer(x);
     }
     return try (chplString.strip()): t;
   }
@@ -169,18 +169,18 @@ module CString {
   //
   // casts from c_string to real/imag types
   //
-  inline operator :(x:c_string, type t:chpl_anyreal)  throws {
+  inline operator :(x:c_ptrConst(c_uchar), type t:chpl_anyreal)  throws {
     var chplString: string;
     try! {
-      chplString = string.createCopyingBuffer(x:c_ptrConst(c_uchar));
+      chplString = string.createCopyingBuffer(x);
     }
     return try (chplString.strip()): t;
   }
 
-  inline operator :(x:c_string, type t:chpl_anyimag) throws {
+  inline operator :(x:c_ptrConst(c_uchar), type t:chpl_anyimag) throws {
     var chplString: string;
     try! {
-      chplString = string.createCopyingBuffer(x:c_ptrConst(c_uchar));
+      chplString = string.createCopyingBuffer(x);
     }
     return try (chplString.strip()): t;
   }
@@ -188,10 +188,10 @@ module CString {
   //
   // casts from c_string to complex types
   //
-  inline operator :(x:c_string, type t:chpl_anycomplex)  throws {
+  inline operator :(x:c_ptrConst(c_uchar), type t:chpl_anycomplex)  throws {
     var chplString: string;
     try! {
-      chplString = string.createCopyingBuffer(x:c_ptrConst(c_uchar));
+      chplString = string.createCopyingBuffer(x);
     }
     return try (chplString.strip()): t;
   }
@@ -200,19 +200,19 @@ module CString {
   // primitive c_string functions and methods
   //
 
-  inline proc c_string.size do return __primitive("string_length_bytes", this);
+  inline proc c_ptrConstUint8.size do return __primitive("string_length_bytes", this);
 
-  inline proc c_string.substring(i: int) do
+  inline proc c_ptrConstUint8.substring(i: int) do
     return __primitive("string_index", this, i);
 
-  inline proc c_string.substring(r: range(?)) {
+  inline proc c_ptrConstUint8.substring(r: range(?)) {
     var r2 = r[1..this.size];  // This may warn about ambiguously aligned ranges.
     var lo:int = r2.low, hi:int = r2.high;
     return __primitive("string_select", this, lo, hi, r2.stride);
   }
 
   pragma "last resort" // avoids param string to c_string coercion
-  inline proc param c_string.size param {
+  inline proc param c_ptrConstUint8.size param {
     return __primitive("string_length_bytes", this);
   }
 
@@ -225,30 +225,30 @@ module CString {
   /* Returns the index of the first occurrence of a substring within a string,
      or 0 if the substring is not in the string.
   */
-  inline proc c_string.indexOf(substring:c_string):int do
+  inline proc c_ptrConstUint8.indexOf(substring:c_ptrConst(c_uchar)):int do
     return string_index_of(this, substring);
 
   pragma "fn synchronization free"
-  extern proc string_index_of(haystack:c_string, needle:c_string):int;
+  extern proc string_index_of(haystack:c_ptrConst(c_uchar), needle:c_ptrConst(c_uchar)):int;
 
   // Use with care.  Not for the weak.
-  inline proc chpl_free_c_string(ref cs: c_string) {
+  inline proc chpl_free_c_string(ref cs: c_ptrConst(c_uchar)) {
     pragma "fn synchronization free"
     pragma "insert line file info"
-    extern proc chpl_rt_free_c_string(ref cs: c_string);
-    if (cs != nil:c_string) then chpl_rt_free_c_string(cs);
+    extern proc chpl_rt_free_c_string(ref cs: c_ptrConst(c_uchar));
+    if (cs != nil:c_ptrConst(c_uchar)) then chpl_rt_free_c_string(cs);
     // cs = nil;
   }
 
-  proc c_string.writeThis(x) throws {
-    compilerError("Cannot write a c_string, cast to a string first.");
+  proc c_ptrConstUint8.writeThis(x) throws {
+    compilerError("Cannot write a c_ptrConstUint8, cast to a string first.");
   }
-  proc c_string.serialize(writer, ref serializer) throws {
+  proc c_ptrConstUint8.serialize(writer, ref serializer) throws {
     writeThis(writer);
   }
 
-  proc c_string.readThis(x) throws {
-    compilerError("Cannot read a c_string, use string.");
+  proc c_ptrConstUint8.readThis(x) throws {
+    compilerError("Cannot read a c_ptrConstUint8, use string.");
   }
 
 }

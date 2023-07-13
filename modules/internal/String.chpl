@@ -421,7 +421,7 @@ module String {
     :returns: A new `string`
   */
   @deprecated("createStringWithBorrowedBuffer is deprecated - please use :proc:`string.createBorrowingBuffer` instead")
-  inline proc createStringWithBorrowedBuffer(x: c_string,
+  inline proc createStringWithBorrowedBuffer(x: c_ptrConst(c_uchar),
                                              length=x.size) : string throws {
     return string.createBorrowingBuffer(x:c_ptr(uint(8)),
                                         length=length,
@@ -445,8 +445,8 @@ module String {
 
     :returns: A new `string`
   */
-  @deprecated("the type 'c_string' is deprecated; use the variant of 'createBorrowingBuffer' that takes a 'c_ptrConst' instead")
-  inline proc type string.createBorrowingBuffer(x: c_string,
+  // @deprecated("the type 'c_string' is deprecated; use the variant of 'createBorrowingBuffer' that takes a 'c_ptrConst' instead")
+  inline proc type string.createBorrowingBuffer(x: c_ptrConst(c_uchar),
                                                 length=x.size) : string throws {
     return string.createBorrowingBuffer(x:bufferType,
                                         length=length,
@@ -499,9 +499,9 @@ module String {
                                         size=length+1);
   }
 
-  proc chpl_createStringWithLiteral(buffer: c_string,
+  proc chpl_createStringWithLiteral(buffer: c_ptrConst(c_uchar),
                                     offset: int,
-                                    x: c_string,
+                                    x: c_ptrConst(c_uchar),
                                     length: int,
                                     numCodepoints: int) : string {
     // copy the string to the combined buffer
@@ -604,7 +604,7 @@ module String {
     :returns: A new `string`
   */
   @deprecated("createStringWithOwnedBuffer is deprecated - please use :proc:`string.createAdoptingBuffer` instead")
-  inline proc createStringWithOwnedBuffer(x: c_string,
+  inline proc createStringWithOwnedBuffer(x: c_ptrConst(c_uchar),
                                           length=x.size) : string throws {
     return string.createAdoptingBuffer(x: bufferType,
                                           length=length,
@@ -627,8 +627,8 @@ module String {
 
     :returns: A new `string`
   */
-  @deprecated("the type 'c_string' is deprecated; use the variant of 'createAdoptingBuffer' that takes a 'c_ptrConst' instead")
-  proc type string.createAdoptingBuffer(x: c_string,
+  // @deprecated("the type 'c_string' is deprecated; use the variant of 'createAdoptingBuffer' that takes a 'c_ptrConst' instead")
+  proc type string.createAdoptingBuffer(x: c_ptrConst(c_uchar),
                                         length=x.size) : string throws {
     return string.createAdoptingBuffer(x:bufferType,
                                        length=length,
@@ -776,7 +776,7 @@ module String {
     :returns: A new `string`
   */
   @deprecated("createStringWithNewBuffer is deprecated - please use :proc:`string.createCopyingBuffer` instead")
-  inline proc createStringWithNewBuffer(x: c_string, length=x.size,
+  inline proc createStringWithNewBuffer(x: c_ptrConst(c_uchar), length=x.size,
                                         policy=decodePolicy.strict) : string throws {
     return string.createCopyingBuffer(x, length, policy);
   }
@@ -803,8 +803,8 @@ module String {
 
     :returns: A new `string`
   */
-  @deprecated("the type 'c_string' is deprecated; use the variant of 'createCopyingBuffer' that takes a 'c_ptrConst' instead")
-  inline proc type string.createCopyingBuffer(x: c_string,
+  // @deprecated("the type 'c_string' is deprecated; use the variant of 'createCopyingBuffer' that takes a 'c_ptrConst' instead")
+  inline proc type string.createCopyingBuffer(x: c_ptrConst(c_uchar),
                                               length=x.size,
                                               policy=decodePolicy.strict
                                               ) : string throws {
@@ -1038,8 +1038,8 @@ module String {
 
     inline proc byteIndices do return 0..<this.numBytes;
 
-    inline proc param c_str() param : c_string {
-      return this:c_string; // folded out in resolution
+    inline proc param c_str() param : c_ptrConst(c_uchar) {
+      return this:c_ptrConst(c_uchar); // folded out in resolution
     }
 
 
@@ -1428,8 +1428,8 @@ module String {
         :type:`string`. The returned `c_string` is only valid when used
         on the same locale as the string.
    */
-  @deprecated(notes="the type 'c_string' is deprecated and with it, 'string.c_str()'; use 'c_ptrToConst(string)' or 'c_ptrTo(string)' from the 'CTypes' module instead")
-  inline proc string.c_str() : c_string {
+  // @deprecated(notes="the type 'c_string' is deprecated and with it, 'string.c_str()'; use 'c_ptrToConst(string)' or 'c_ptrTo(string)' from the 'CTypes' module instead")
+  inline proc string.c_str() : c_ptrConst(c_uchar) {
     return getCStr(this);
   }
 
@@ -2639,15 +2639,15 @@ module String {
   //
 
   @chpldoc.nodoc
-  inline operator :(cs: c_string, type t: bufferType)  {
+  inline operator :(cs: c_ptrConst(c_uchar), type t: bufferType)  {
     return __primitive("cast", t, cs);
   }
 
   // Cast from c_string to string
   @chpldoc.nodoc
-  operator :(cs: c_string, type t: string)  {
+  operator :(cs: c_ptrConst(c_uchar), type t: string)  {
     try {
-      return string.createCopyingBuffer(cs:c_ptrConst(c_uchar));
+      return string.createCopyingBuffer(cs);
     }
     catch {
       halt("Casting a non-UTF-8 c_string to string");

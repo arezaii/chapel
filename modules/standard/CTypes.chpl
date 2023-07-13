@@ -52,6 +52,10 @@ module CTypes {
   extern "_cfiletype" type chpl_cFile; // direct uses of this type in the IO module
                                       // can be replaced with c_FILE when deprecation is complete
 
+  // TODO: maybe rename this to chpl_something
+  @deprecated("the type 'c_string' is deprecated; please use c_ptrConst(c_uchar) instead")
+  type c_string = c_ptrConstUint8;
+
   /* Controls whether :type:`c_FILE` represents a ``FILE*`` or a ``FILE``.
 
     - If true, ``c_FILE`` represents a ``FILE*``. This behavior is deprecated
@@ -462,10 +466,10 @@ module CTypes {
         // if from and to are both pointer types themselves, recurse into their
         // respective pointee types (strip a layer of indirection)
         return pointeeCastStrictAliasingAllowed(from.eltType, to.eltType);
-      } else if (from == c_string) {
-        // a c_string can be interpreted as a pointer to c_char for this purpose
+      } else if (from == c_ptrConst(c_uchar)) {
+        // a c_ptrConst(c_uchar) can be interpreted as a pointer to c_char for this purpose
         return pointeeCastStrictAliasingAllowed(c_char, to.eltType);
-      } else if (to == c_string) {
+      } else if (to == c_ptrConst(c_uchar)) {
         return pointeeCastStrictAliasingAllowed(from.eltType, c_char);
       }
     }

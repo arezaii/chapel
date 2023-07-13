@@ -30,7 +30,7 @@ module ChapelIOStringifyHelper {
   proc _can_stringify_direct(t) param : bool {
     if (t.type == string ||
         t.type == bytes ||
-        t.type == c_string ||
+        t.type == c_ptrConst(c_uchar) ||
         isRangeType(t.type) ||
         isPrimitiveType(t.type)) {
       return true;
@@ -49,7 +49,7 @@ module ChapelIOStringifyHelper {
     var str = "(";
 
     for param i in 0..tup.size-1 {
-      if (tup[i].type == c_string) {
+      if (tup[i].type == c_ptrConst(c_uchar)) {
         try! {
           str += string.createCopyingBuffer(tup[i]:c_ptrConst(c_uchar));
         }
@@ -78,10 +78,10 @@ module ChapelIOStringifyHelper {
     for param i in 0..k-1 {
       if (args[i].type == string) {
         str += args[i];
-      } else if (args[i].type == c_string) {
+      } else if (args[i].type == c_ptrConst(c_uchar)) {
         //decodePolicy.replace never throws
         try! {
-          str += string.createCopyingBuffer(args[i]:c_ptrConst(c_uchar),
+          str += string.createCopyingBuffer(args[i],
                                            policy=decodePolicy.replace);
         }
       } else if (args[i].type == bytes) {

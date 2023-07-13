@@ -79,7 +79,7 @@ module Bytes {
     :returns: A new :type:`bytes`
   */
   @deprecated("createBytesWithBorrowedBuffer is deprecated - please use :proc:`bytes.createBorrowingBuffer` instead")
-  inline proc createBytesWithBorrowedBuffer(x: c_string,
+  inline proc createBytesWithBorrowedBuffer(x: c_ptrConst(c_uchar),
                                             length=x.size) : bytes {
     return bytes.createBorrowingBuffer(x, length=length);
   }
@@ -96,8 +96,8 @@ module Bytes {
 
     :returns: A new :type:`bytes`
   */
-  @deprecated("the type 'c_string' is deprecated; use the variant of 'createBorrowingBuffer' that takes a 'c_ptrConst' instead")
-  inline proc type bytes.createBorrowingBuffer(x: c_string,
+  // @deprecated("the type 'c_string' is deprecated; use the variant of 'createBorrowingBuffer' that takes a 'c_ptrConst' instead")
+  inline proc type bytes.createBorrowingBuffer(x: c_ptrConst(c_uchar),
                                                length=x.size) : bytes {
     return bytes.createBorrowingBuffer(x:bufferType, length=length,
                                        size=length+1);
@@ -141,9 +141,9 @@ module Bytes {
                                        size=length+1);
   }
 
-  proc chpl_createBytesWithLiteral(buffer: c_string,
+  proc chpl_createBytesWithLiteral(buffer: c_ptrConst(c_uchar),
                                    offset: int,
-                                   x: c_string,
+                                   x: c_ptrConst(c_uchar),
                                    length: int) {
     // copy the string to the combined buffer
     var buf = buffer:c_ptr(void):c_ptr(uint(8));
@@ -222,7 +222,7 @@ module Bytes {
     :returns: A new :type:`bytes`
   */
   @deprecated("createBytesWithOwnedBuffer is deprecated - please use :proc:`bytes.createAdoptingBuffer` instead")
-  inline proc createBytesWithOwnedBuffer(x: c_string, length=x.size) : bytes {
+  inline proc createBytesWithOwnedBuffer(x: c_ptrConst(c_uchar), length=x.size) : bytes {
     return bytes.createAdoptingBuffer(x, length);
   }
 
@@ -238,8 +238,8 @@ module Bytes {
 
     :returns: A new :type:`bytes`
   */
-  @deprecated("the type 'c_string' is deprecated; use the variant of 'createAdoptingBuffer' that takes a 'c_ptrConst' instead")
-  inline proc type bytes.createAdoptingBuffer(x: c_string, length=x.size) : bytes {
+  // @deprecated("the type 'c_string' is deprecated; use the variant of 'createAdoptingBuffer' that takes a 'c_ptrConst' instead")
+  inline proc type bytes.createAdoptingBuffer(x: c_ptrConst(c_uchar), length=x.size) : bytes {
     return bytes.createAdoptingBuffer(x: bufferType, length=length,
                                       size=length+1);
   }
@@ -354,7 +354,7 @@ module Bytes {
     :returns: A new :type:`bytes`
   */
   @deprecated("createBytesWithNewBuffer is deprecated - please use :proc:`bytes.createCopyingBuffer` instead")
-  inline proc createBytesWithNewBuffer(x: c_string, length=x.size) : bytes {
+  inline proc createBytesWithNewBuffer(x: c_ptrConst(c_uchar), length=x.size) : bytes {
     return bytes.createCopyingBuffer(x, length);
   }
 
@@ -369,8 +369,8 @@ module Bytes {
 
     :returns: A new :type:`bytes`
   */
-  @deprecated("the type 'c_string' is deprecated; use the variant of 'createCopyingBuffer' that takes a 'c_ptrConst' instead")
-  inline proc type bytes.createCopyingBuffer(x: c_string, length=x.size) : bytes {
+  // @deprecated("the type 'c_string' is deprecated; use the variant of 'createCopyingBuffer' that takes a 'c_ptrConst' instead")
+  inline proc type bytes.createCopyingBuffer(x: c_ptrConst(c_uchar), length=x.size) : bytes {
     return bytes.createCopyingBuffer(x: bufferType, length=length,
                                      size=length+1);
   }
@@ -505,8 +505,8 @@ module Bytes {
       initWithNewBuffer(this, b.buff, length=b.numBytes, size=b.numBytes+1);
     }
 
-    @deprecated("the type 'c_string' is deprecated; please use one of the bytes.create*Buffer methods instead")
-    proc init=(b: c_string) {
+    // @deprecated("the type 'c_string' is deprecated; please use one of the bytes.create*Buffer methods instead")
+    proc init=(b: c_ptrConst(c_uchar)) {
       this.complete();
       var length = b.size;
       initWithNewBuffer(this, b: bufferType, length=length, size=length+1);
@@ -520,9 +520,9 @@ module Bytes {
     inline proc param numBytes param do
       return __primitive("string_length_bytes", this);
 
-    @deprecated("the type 'c_string' is deprecated and with it, 'bytes.c_str()'; use 'c_ptrToConst(bytes)' or 'c_ptrTo(bytes)' from the 'CTypes' module instead")
-    inline proc param c_str() param : c_string {
-      return this:c_string; // folded out in resolution
+    // @deprecated("the type 'c_string' is deprecated and with it, 'bytes.c_str()'; use 'c_ptrToConst(bytes)' or 'c_ptrTo(bytes)' from the 'CTypes' module instead")
+    inline proc param c_str() param : c_ptrConst(c_uchar) {
+      return this:c_ptrConst(c_uchar); // folded out in resolution
     }
 
     inline proc param this(param i: int) param : int {
@@ -634,8 +634,8 @@ module Bytes {
         :type:`bytes`. The returned `c_string` is only valid when used
         on the same locale as the bytes.
    */
-  @deprecated(notes="the type 'c_string' is deprecated and with it, 'bytes.c_str()'; use 'c_ptrToConst(bytes)' or 'c_ptrTo(bytes)' from the 'CTypes' module instead")
-  inline proc bytes.c_str(): c_string {
+  // @deprecated(notes="the type 'c_string' is deprecated and with it, 'bytes.c_str()'; use 'c_ptrToConst(bytes)' or 'c_ptrTo(bytes)' from the 'CTypes' module instead")
+  inline proc bytes.c_str(): c_ptrConst(c_uchar) {
     return getCStr(this);
   }
 
@@ -1280,8 +1280,8 @@ module Bytes {
     return bytes.createCopyingBuffer(x.buff, length=x.numBytes, size=x.numBytes+1);
   }
   @chpldoc.nodoc
-  @deprecated("the type 'c_string' is deprecated")
-  inline operator :(x: c_string, type t: bytes) {
+  // @deprecated("the type 'c_string' is deprecated")
+  inline operator :(x: c_ptrConst(c_uchar), type t: bytes) {
     var length = x.size;
     return bytes.createCopyingBuffer(x: bufferType, length=length, size=length+1);
   }
@@ -1306,9 +1306,9 @@ module Bytes {
 
      Halts if `lhs` is a remote bytes.
   */
-  @deprecated("the type 'c_string' is deprecated")
-  operator bytes.=(ref lhs: bytes, rhs_c: c_string) : void {
-    lhs = bytes.createCopyingBuffer(rhs_c:c_ptrConst(c_uchar));
+  // @deprecated("the type 'c_string' is deprecated")
+  operator bytes.=(ref lhs: bytes, rhs_c: c_ptrConst(c_uchar)) : void {
+    lhs = bytes.createCopyingBuffer(rhs_c);
   }
 
   //

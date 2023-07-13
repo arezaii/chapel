@@ -24,6 +24,7 @@ Functions related to predefined types.
 pragma "module included by default"
 module Types {
   import HaltWrappers;
+  use CTypes;
 
 @chpldoc.nodoc // joint documentation with the next one
 proc isType(type t) param do return true;
@@ -49,7 +50,7 @@ proc _isPrimitiveType(type t) param do return
   isRealType(t)     ||
 //To allow imag, need to define casts from primitive types into imag.
 //isImagType(t)     ||
-  (t == c_string);
+  (t == c_ptrConst(c_uchar));
 
 /*
 Returns ``true`` if the type ``t`` is a primitive type,

@@ -405,10 +405,10 @@ module Errors {
 
   proc chpl_error_type_name(err: borrowed Error) : string {
     var cid =  __primitive("getcid", err);
-    var nameC: c_string = __primitive("class name by id", cid);
+    var nameC: c_ptrConst(c_uchar) = __primitive("class name by id", cid);
     var nameS: string;
     try! {
-      nameS = string.createCopyingBuffer(nameC:c_ptrConst(c_uchar));
+      nameS = string.createCopyingBuffer(nameC);
     }
     return nameS;
   }
@@ -493,21 +493,21 @@ module Errors {
   pragma "insert line file info"
   pragma "always propagate line file info"
   proc chpl_uncaught_error(err: unmanaged Error) {
-    extern proc chpl_error_preformatted(ptr:c_ptrConst(c_uchar));
+    extern proc chpl_error_preformatted(ptr);
 
-    const myFileC:c_string = __primitive("chpl_lookupFilename",
+    const myFileC:c_ptrConst(c_uchar) = __primitive("chpl_lookupFilename",
                                          __primitive("_get_user_file"));
     var myFileS: string;
     try! {
-      myFileS = string.createCopyingBuffer(myFileC:c_ptrConst(c_uchar));
+      myFileS = string.createCopyingBuffer(myFileC);
     }
     const myLine = __primitive("_get_user_line");
 
-    const thrownFileC:c_string = __primitive("chpl_lookupFilename",
+    const thrownFileC:c_ptrConst(c_uchar) = __primitive("chpl_lookupFilename",
                                              err.thrownFileId);
     var thrownFileS: string;
     try! {
-      thrownFileS = string.createCopyingBuffer(thrownFileC:c_ptrConst(c_uchar));
+      thrownFileS = string.createCopyingBuffer(thrownFileC);
     }
     const thrownLine = err.thrownLine;
 
@@ -588,7 +588,7 @@ module Errors {
   pragma "always propagate line file info"
   proc assert(test: bool) {
     if !test then
-      __primitive("chpl_error", c_ptrToConst_helper("assert failed"):c_string);
+      __primitive("chpl_error", c_ptrToConst_helper("assert failed"));
   }
 
 
@@ -610,7 +610,7 @@ module Errors {
   proc assert(test: bool, args...) {
     if !test {
       var tmpstring = "assert failed - " + chpl_stringify_wrapper((...args));
-      __primitive("chpl_error", c_ptrToConst_helper(tmpstring):c_string);
+      __primitive("chpl_error", c_ptrToConst_helper(tmpstring));
     }
   }
 
@@ -723,14 +723,14 @@ module Errors {
   pragma "function terminates program"
   pragma "always propagate line file info"
   proc halt() {
-    __primitive("chpl_error", c_ptrToConst_helper("halt reached"):c_string);
+    __primitive("chpl_error", c_ptrToConst_helper("halt reached"));
   }
 
   pragma "function terminates program"
   pragma "always propagate line file info"
   @chpldoc.nodoc  // documented in the varargs overload
   proc halt(msg:string) {
-    halt(c_ptrToConst_helper(msg.localize()):c_string);
+    halt(c_ptrToConst_helper(msg.localize()));
   }
 
   /*
@@ -745,7 +745,7 @@ module Errors {
   pragma "always propagate line file info"
   proc halt(args...) {
     var tmpstring = "halt reached - " + chpl_stringify_wrapper((...args));
-    __primitive("chpl_error", c_ptrToConst_helper(tmpstring):c_string);
+    __primitive("chpl_error", c_ptrToConst_helper(tmpstring));
   }
 
   /*
@@ -754,7 +754,7 @@ module Errors {
   */
   pragma "always propagate line file info"
   proc warning(msg:string) {
-    __primitive("chpl_warning", c_ptrToConst_helper(msg.localize()):c_string);
+    __primitive("chpl_warning", c_ptrToConst_helper(msg.localize()));
   }
 
   /*

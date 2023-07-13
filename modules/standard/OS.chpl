@@ -765,18 +765,13 @@ module OS {
     //
     // stdlib.h
     //
-    extern proc getenv(name:c_ptrConst(c_uchar)):c_ptrConst(c_uchar);
-    @deprecated("the type 'c_string' is deprecated; use the variant of 'getenv' that takes a 'c_ptrConst(c_uchar)' instead")
-    extern proc getenv(name:c_string):c_ptr(c_char);
+    extern proc getenv(name:c_ptrConst(c_uchar)):c_ptr(c_char);
 
     //
     // string.h
     //
     extern proc strerror(errnum:c_int):c_ptrConst(c_uchar);
-    // extern proc strerror(errnum:c_int):c_string;
     extern proc strlen(s:c_ptrConst(c_uchar)):c_size_t;
-    @deprecated("the type 'c_string' is deprecated; use the variant of 'strlen' that takes a 'c_ptrConst(c_uchar)' instead")
-    extern proc strlen(s:c_string):c_size_t;
 
     //
     // sys/select.h
