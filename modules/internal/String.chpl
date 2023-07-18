@@ -2708,4 +2708,8 @@ module String {
       x.locale_id <=> y.locale_id;
     }
   }
+
+  // TODO: maybe rename this to chpl_something
+  @deprecated("the type 'c_string' is deprecated; please use c_ptrConst(c_uchar) instead")
+  type c_string = c_ptrConstUint8;
 }
