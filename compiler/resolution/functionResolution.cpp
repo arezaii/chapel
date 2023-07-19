@@ -1540,12 +1540,14 @@ bool canCoerceAsSubtype(Type*     actualType,
 
   // coerce raw_c_void_ptr to c_ptr(void)
   if (actualType == dtCVoidPtr && isCVoidPtr(formalType))
+    return true;
+
   // coerce dtStringC to c_void_ptr
-  if (actualType == dtStringC && formalType == dtCVoidPtr)
+  if (actualType == dtStringC && isCVoidPtr(formalType))
     return true;
 
   // coerce c_ptr to c_void_ptr
-  if (actualType->symbol->hasFlag(FLAG_C_PTR_CLASS) && formalType == dtCVoidPtr)
+  if (actualType->symbol->hasFlag(FLAG_C_PTR_CLASS) && isCVoidPtr(formalType))
     return true;
 
   // coerce c_ptr(t) to c_ptr(void)
