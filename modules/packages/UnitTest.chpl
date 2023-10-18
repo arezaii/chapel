@@ -318,8 +318,10 @@ module UnitTest {
     pragma "insert line file info"
     pragma "always propagate line file info"
     proc assertFalse(test: bool) throws {
-      if test then
-        throw new owned AssertionError("assertFalse failed. Given expression is True");
+      if test {
+        var msg = "assertFalse failed. Given expression is True";
+        throw new owned AssertionError(msg);
+      }
     }
 
     @chpldoc.nodoc
@@ -1374,6 +1376,7 @@ module UnitTest {
   /* These errors are used for implementation purposes (communication between
      the tests and test runner). Not intended for user consumption. */
   module TestError {
+    private use CTypes, IO, IO.FormattedIO;
     /*
     :class:`TestError` is a base class.
     */
@@ -1386,7 +1389,13 @@ module UnitTest {
 
       // Message function overridden here
       override proc message() {
-        return this.details;
+        const thrownFileC = __primitive("chpl_lookupFilename",
+                                             this.thrownFileId);
+        var thrownFileS: string;
+        try! thrownFileS = string.createCopyingBuffer(thrownFileC:c_ptrConst(c_char));
+
+        var msg = try! "in %? on line number %i - %?".format(thrownFileS, this.thrownLine, this.details);
+        return msg;
       }
     }
 
