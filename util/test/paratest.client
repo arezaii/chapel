@@ -4,7 +4,7 @@
 # Used remotely by paratest.server to run start_test locally.
 #
 # Usage: paratest.client id chapeltestdir testdir chplenv futures-mode valgrind memleaks memleakslog [compopts [execopts]]
-#  
+#
 #  id - used to create a file to synchronize with paratest.server
 #  chapeltestdir - root dir of Chapel test infrastructure
 #  testdir - directory to run start_test on
@@ -17,7 +17,7 @@
 #  execopts - optional test execution options
 #
 # NOTE: Assumes paratest.client is run from $CHPL_HOME/test
-# 
+#
 
 $debug = 0;  # if setting this, also set $verbose=1 in paratest.server
 $logdir = "Logs";
@@ -54,7 +54,7 @@ sub main {
 
     if ($#ARGV < 7) {
         fatal("insufficient arguments: '@ARGV'\n" .
-	      "Usage:  paratest.client id chapeltestdir testdir chplenv futures-mode valgrind memleaks memleakslog [compopts [execopts]]");
+	      "Usage:  paratest.client id chapeltestdir testdir chplenv futures-mode valgrind memleaks memleakslog [compopts [execopts [compiler]]]");
     }
 
     $id = $ARGV[0];
@@ -75,6 +75,12 @@ sub main {
     if ($#ARGV>=9) {
         $execopts = "-execopts \"" . $ARGV[9] . "\"";
     }
+    if ($#ARGV>=10) {
+        $compiler = $ARGV[10];
+    } else {
+        $binpath = `../util/chplenv/chpl_bin_subdir.py`; chomp $binpath;
+        $compiler = "../bin/$binpath/chpl";
+    }
 
     $synchfile = "$synchdir/$node.$id";
 
@@ -83,8 +89,7 @@ sub main {
     }
     print "\n* $node up @ $workingdir *\n";
 
-    $binpath = `../util/chplenv/chpl_bin_subdir.py`; chomp $binpath;
-    $compiler = "../bin/$binpath/chpl";
+
     unless (-e $compiler) {
         fatal("cannot find or execute the compiler '$compiler'");
     }

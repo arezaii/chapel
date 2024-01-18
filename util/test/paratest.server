@@ -275,14 +275,16 @@ sub feed_nodes {
                       $chplenv = "\"$chplenv\"";
                       $compopts = "\"$compopts\"";
                       $execopts = "\"$execopts\"";
+                      $compiler = $compiler;
                   } else {
                       $rem_exec_cmd = "$rem_exe $node";
                       $chplenv = "\\\"$chplenv\\\"";
                       $compopts = "\\\"$compopts\\\"";
                       $execopts = "\\\"$execopts\\\"";
+                      $compiler = $compiler;
                   }
                   # If the command line gets too long, consider using xargs
-                  $rem_cmd = "$rem_exec_cmd $client_script $readyid $pwd $testdir $chplenv $futures_mode $valgrind $memleaksflag $memleakslog $compopts $execopts";
+                  $rem_cmd = "$rem_exec_cmd $client_script $readyid $pwd $testdir $chplenv $futures_mode $valgrind $memleaksflag $memleakslog $compopts $execopts $compiler";
                   if ($verbose) {
                       systemd ($rem_cmd);
                   } else {
@@ -515,7 +517,7 @@ sub find_files {
 
 
 sub print_help {
-    print "Usage: paratest.server [-compopts s] [-dirfile d] [-dirs d] [-env s] [-execopts s] [-filedist] [-futures] [-futures-only] [-logfile l] [-memleaks] [-memleakslog f] [-multilocale-only] [-no-futures] [-nodefile n] [-nodepara m] [-valgrind[exe]] [-help|-h] [-timeout t]\n";
+    print "Usage: paratest.server [-compopts s] [-dirfile d] [-dirs d] [-env s] [-execopts s] [-filedist] [-futures] [-futures-only] [-logfile l] [-memleaks] [-memleakslog f] [-multilocale-only] [-no-futures] [-nodefile n] [-nodepara m] [-valgrind[exe]] [-help|-h] [-timeout t] [-compiler s]\n";
     print "    -compopts s: s is a string that is passed with -compopts to start_test.\n";
     print "    -dirfile  d: d is a file listing directories to test. Default is the current diretory.\n";
     print "    -dirs     d: d is a space separated list of directories to recursively search for directories to test\n";
@@ -536,6 +538,7 @@ sub print_help {
     print "    -junit-xml : Create jUnit test report.\n";
     print "    -junit-xml-file f: Put jUnit test report at location 'f' (implies -junit-xml).\n";
     print "    -junit-remove-prefix p: Remove prefix 'p' from all tests in junit report.\n";
+    print "    -compiler s: s is the path and name of the compiler binary to use.\n";
 }
 
 
@@ -689,6 +692,14 @@ sub main {
         } elsif (/^-help$|^-h$/) {
             print_help;
             exit (9);
+        } elsif (/^-compiler$/) {
+            shift @ARGV;
+            if ($#ARGV >= 0) {
+                $compiler = $ARGV[0];
+            } else {
+                print "missing -compiler arg\n";
+                exit (8);
+            }
         } else {
             print "unknown arg $_\n";
             exit (9);
