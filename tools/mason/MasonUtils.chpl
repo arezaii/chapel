@@ -252,12 +252,12 @@ record VersionInfo {
   }
 
   proc init(str:string) {
-    const s : [1..3] string = str.split(".");
-    assert(s.size == 3);
+    const s = str.split(".");
+    assert(isArray(s) && s.size == 3, "Invalid version " + str);
 
-    major = s[1]:int;
-    minor = s[2]:int;
-    bug   = s[3]:int;
+    major = s[0]:int;
+    minor = s[1]:int;
+    bug   = s[2]:int;
   }
 
   proc str() {
