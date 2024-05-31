@@ -852,6 +852,23 @@ CanPassResult CanPassResult::canInstantiate(Context* context,
         got.failReason_ = FAIL_DID_NOT_INSTANTIATE;
         return got;
       }
+    } else if (auto formalCt = formalT->toCompositeType()) {
+      // check for instantiating _owned record
+      if (formalCt->isRecordType() && formalCt->name() == UniqueString::get(context, "_owned")) {
+        if (actualCt->decorator().isManaged()) {
+          // TODO: check that the recordType is actually our _owned type in our bundled module
+          // e.g., is ID in bundled modules and does it have 'pragma "managed pointer"'?
+          if (auto manager = actualCt->manager()) {
+            if (manager->isAnyOwnedType()) {
+              // TODO: what ConversionKind should we return here?
+              return CanPassResult(/* no fail reason, passes */ {},
+                      /* instantiates */ true,
+                      /* promotes */ false,
+                      /* converts */ ConversionKind::OTHER);
+            }
+          }
+        }
+      }
     }
   } else if (auto actualCt = actualT->toCompositeType()) {
     // check for instantiating records/unions/tuples
