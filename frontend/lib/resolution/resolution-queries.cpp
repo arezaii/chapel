@@ -1385,6 +1385,17 @@ QualifiedType getInstantiationType(Context* context,
       // now construct the ClassType
       auto ct = ClassType::get(context, bct, manager, dec);
       return QualifiedType(formalType.kind(), ct);
+    } else if (auto formalRT = formalT->toRecordType()) {
+      if (formalRT->name() == UniqueString::get(context, "_owned")) {
+        // TODO: How to map the class to the _owned record correctly
+        //  idea 1. add compiler generated parenless methods to C for chpl_t, chpl_p
+        //  idea 2. instantiate _owned with the class type C
+        auto bct = actualCt->basicClassType();
+        auto manager = actualCt->manager();
+        auto dec = actualCt->decorator();
+        auto ct = ClassType::get(context, bct, manager, dec);
+        return QualifiedType(actualType.kind(), ct);
+      }
     }
 
     // handle decorated class passed to special built-in type
