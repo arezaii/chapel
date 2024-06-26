@@ -222,6 +222,12 @@ class CompositeType : public Type {
   /** Get the chpl_localeID_t type */
   static const RecordType* getLocaleIDType(Context* context);
 
+  /** Get the record _owned implementing owned */
+  static const RecordType* getOwnedRecordType(Context* context);
+
+  /** Get the record _owned implementing owned */
+  static const RecordType* getSharedRecordType(Context* context);
+
   /** When compiling without a standard library (for testing purposes),
       the compiler code needs to work around the fact that there
       is no definition available for the bundled types needed

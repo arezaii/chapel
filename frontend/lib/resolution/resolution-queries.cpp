@@ -2255,7 +2255,9 @@ resolveFunctionByInfoQuery(Context* context,
   const UntypedFnSignature* untypedSignature = sig->untyped();
   const AstNode* ast = parsing::idToAst(context, untypedSignature->id());
   const Function* fn = ast->toFunction();
-
+  if (fn->name() == "borrow") {
+    debuggerBreakHere();
+  }
   const PoiScope* poiScope = poiInfo.poiScope();
 
   PoiInfo resolvedPoiInfo;
@@ -3308,6 +3310,26 @@ static bool resolveFnCallSpecial(Context* context,
                                  QualifiedType& exprTypeOut) {
   // TODO: .borrow()
   // TODO: chpl__coerceCopy
+
+  // Consider the resolution of .borrow() here a performance optimization, other
+  // methods on _owned should be resolved the "normal" way, through the module code
+  if (ci.isMethodCall() && ci.name() == UniqueString::get(context, "borrow")) {
+    if (ci.numActuals() == 2) {
+      auto thisQt = ci.actual(0).type();
+      auto actualQt = ci.actual(1).type();
+      if (thisQt.type()->isAnyOwnedType() && actualQt.type()->isClassType()) {
+        if (actualQt.type()->toClassType()->decorator().isManaged()) {
+          // TODO: better checking that this is our OwnedObject.release method?
+          if (auto manager = actualQt.type()->toClassType()->manager()) {
+            if (manager->isAnyOwnedType()) {
+              exprTypeOut = actualQt;
+              return true;
+            }
+          }
+        }
+      }
+    }
+  }
 
   // explicit param casts are resolved here
   if (ci.isOpCall() && ci.name() == USTR(":")) {
