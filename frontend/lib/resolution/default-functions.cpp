@@ -601,7 +601,9 @@ fieldAccessorQuery(Context* context,
   const TypedFnSignature* result = nullptr;
   std::vector<UntypedFnSignature::FormalDetail> ufsFormals;
   std::vector<QualifiedType> formalTypes;
-
+  if (fieldName == "chpl_p" || fieldName == "chpl_t") {
+    debuggerBreakHere();
+  }
   // start by adding a formal for the receiver
   auto ufsReceiver =
     UntypedFnSignature::FormalDetail(USTR("this"),
@@ -843,7 +845,9 @@ getCompilerGeneratedMethodQuery(Context* context, QualifiedType receiverType,
   const Type* type = receiverType.type();
 
   const TypedFnSignature* result = nullptr;
-
+  if (name == "chpl_p" || name == "chpl_t") {
+    debuggerBreakHere();
+  }
   if (needCompilerGeneratedMethod(context, type, name, parenless)) {
     auto compType = type->getCompositeType();
     CHPL_ASSERT(compType || type->isCPtrType());

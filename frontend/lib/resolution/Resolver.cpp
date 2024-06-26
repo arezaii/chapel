@@ -686,6 +686,21 @@ Resolver::gatherReceiverAndParentScopesForType(Context* context,
       scopes.push_back(scopeForId(context, ct->id()));
 
       if (auto bct = ct->toBasicClassType()) {
+        // add the scope for the manager type
+        if (auto classType = thisType->toClassType()) {
+          // for owned && shared, manager is the built in AnyClassType
+          if (auto manager = classType->manager()) {
+            if (manager->isAnyOwnedType()) {
+              auto owned = CompositeType::getOwnedRecordType(context);
+              scopes.push_back(scopeForId(context, owned->id()));
+            } else if (manager->isAnySharedType()) {
+              auto shared = CompositeType::getSharedRecordType(context);
+              scopes.push_back(scopeForId(context, shared->id()));
+            } else if (auto mgr = manager->toRecordType()) {
+              scopes.push_back(scopeForId(context, mgr->id()));
+            }
+          }
+        }
         // also add scopes for all superclass types
         auto cur = bct->parentClassType();
         while (cur != nullptr) {
@@ -701,8 +716,7 @@ Resolver::gatherReceiverAndParentScopesForType(Context* context,
 
 bool Resolver::getMethodReceiver(QualifiedType* outType, ID* outId) {
   if (!scopeResolveOnly &&
-      typedSignature &&
-      typedSignature->untyped()->isMethod()) {
+      typedSignature &&      typedSignature->untyped()->isMethod()) {
     // use type information to compute the receiver type
     if (outType) *outType = typedSignature->formalType(0);
     return true;
@@ -2751,7 +2765,9 @@ std::vector<BorrowedIdsWithName> Resolver::lookupIdentifier(
   bool resolvingCalledIdent = nearestCalledExpression() == ident;
   LookupConfig config = IDENTIFIER_LOOKUP_CONFIG;
   if (!resolvingCalledIdent) config |= LOOKUP_INNERMOST;
-
+  if (ident->name() == "chpl_t" || ident->name() == "chpl_p") {
+    debuggerBreakHere();
+  }
   auto vec = lookupNameInScopeWithWarnings(context, scope, receiverScopes,
                                            ident->name(), config, ident->id());
 
