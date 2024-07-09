@@ -19,7 +19,7 @@
  */
 
 /* Version as of Chapel 1.25 - to be updated each release */
-const spackVersion = new VersionInfo('0.19.0');
+const spackVersion = new VersionInfo('0.22.1');
 const major = spackVersion.major:string;
 const minor = spackVersion.minor:string;
 const spackBranch = 'releases/v' + '.'.join(major, minor);
@@ -357,7 +357,7 @@ private proc printArch() {
 
 /* Queries system to see if package is installed on system */
 proc spkgInstalled(spec: string) {
-  const command = "spack find -df --show-full-compiler " + spec;
+  const command = "spack find -df --show-full-compiler " + spec.strip('-[]+');
   const pkgInfo = getSpackResult(command, quiet=true);
   var found = false;
   var dependencies: [1..0] string; // a list of pkg dependencies
@@ -529,7 +529,7 @@ proc getSpkgPath(spec: string): string throws {
 /* Find dependencies of package that are installed on machine */
 proc getSpkgDependencies(spec: string): list(string) throws {
   const name = specName(spec);
-  const command = "spack find -df --show-full-compiler " + spec;
+  const command = "spack find -df --show-full-compiler " + spec.strip('-[]+');
   const pkgInfo = getSpackResult(command, quiet=true);
   var found = false;
   var dependencies: list(string);
@@ -562,11 +562,15 @@ private proc specName(spec: string): string throws {
 /* Resolve spec, pinning to the installed version and eliminating ranges */
 private proc resolveSpec(spec: string): string throws {
   const command = "spack spec %s".format(spec);
-  const output = getSpackResult(command, quiet=true);
+  writeln(command);
+  const output = getSpackResult(command, quiet=false);
   var lines = output.split('\n');
-
+  writeln(output);
   // Package on 7th line
-  var ret = lines[6].strip();
+  var pkgDef = lines[6].strip(' -[]+\t\r\n');
+
+  var retArr = pkgDef.split(" ");
+  var ret = retArr[0];
 
   if ret == '' {
     throw new owned MasonError("Package not found: " + spec);
