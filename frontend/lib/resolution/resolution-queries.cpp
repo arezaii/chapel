@@ -2255,9 +2255,6 @@ resolveFunctionByInfoQuery(Context* context,
   const UntypedFnSignature* untypedSignature = sig->untyped();
   const AstNode* ast = parsing::idToAst(context, untypedSignature->id());
   const Function* fn = ast->toFunction();
-  if (fn->name() == "borrow") {
-    debuggerBreakHere();
-  }
   const PoiScope* poiScope = poiInfo.poiScope();
 
   PoiInfo resolvedPoiInfo;

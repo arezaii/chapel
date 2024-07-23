@@ -597,22 +597,21 @@ gatherParentClassScopesForScopeResolving(Context* context, ID classDeclId) {
   auto c = ast->toClass();
   if (!c || c->numInheritExprs() == 0) return QUERY_END(result);
 
-  const uast::AstNode* lastParentClass = nullptr;
-  ID parentClassDeclId;
-  for (auto inheritExpr : c->inheritExprs()) {
-    // Resolve the parent class type expression
-    ResolutionResultByPostorderID r;
-    auto visitor =
-      Resolver::createForParentClassScopeResolve(context, c, r);
-    // Parsing excludes non-identifiers as parent class expressions.
-    //
-    // Intended to avoid calling methodReceiverScopes() recursively.
-    // Uses the empty 'savecReceiverScopes' because the class expression
-    // can't be a method anyways.
-    bool ignoredMarkedGeneric = false;
-    auto inherit = Class::getUnwrappedInheritExpr(inheritExpr,
-                                                ignoredMarkedGeneric);
-    inherit->traverse(visitor);
+    const uast::AstNode* lastParentClass = nullptr;
+    for (auto inheritExpr : c->inheritExprs()) {
+      // Resolve the parent class type expression
+      ResolutionResultByPostorderID r;
+      auto visitor =
+        Resolver::createForParentClassScopeResolve(context, c, r);
+      // Parsing excludes non-identifiers as parent class expressions.
+      //
+      // Intended to avoid calling methodReceiverScopes() recursively.
+      // Uses the empty 'savedReceiverScopes' because the class expression
+      // can't be a method anyways.
+      bool ignoredMarkedGeneric = false;
+      auto ident = Class::getInheritExprIdent(inheritExpr,
+                                              ignoredMarkedGeneric);
+      visitor.resolveIdentifier(ident, visitor.savedReceiverScopes);
 
 
     ResolvedExpression& re = r.byAst(inherit);
@@ -670,6 +669,9 @@ Resolver::gatherReceiverAndParentScopesForDeclId(Context* context,
       gatherParentClassScopesForScopeResolving(context, aggregateDeclId);
 
     scopes.append(v.begin(), v.end());
+    // TODO: We need to do something here to pad the scopes with _owned or _shared when applicable
+    // auto owned = CompositeType::getOwnedRecordType(context);
+    // scopes.push_back(scopeForId(context, owned->id()));
   }
 
   return scopes;
@@ -2765,9 +2767,6 @@ std::vector<BorrowedIdsWithName> Resolver::lookupIdentifier(
   bool resolvingCalledIdent = nearestCalledExpression() == ident;
   LookupConfig config = IDENTIFIER_LOOKUP_CONFIG;
   if (!resolvingCalledIdent) config |= LOOKUP_INNERMOST;
-  if (ident->name() == "chpl_t" || ident->name() == "chpl_p") {
-    debuggerBreakHere();
-  }
   auto vec = lookupNameInScopeWithWarnings(context, scope, receiverScopes,
                                            ident->name(), config, ident->id());
 
