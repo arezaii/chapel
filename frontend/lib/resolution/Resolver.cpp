@@ -597,21 +597,22 @@ gatherParentClassScopesForScopeResolving(Context* context, ID classDeclId) {
   auto c = ast->toClass();
   if (!c || c->numInheritExprs() == 0) return QUERY_END(result);
 
-    const uast::AstNode* lastParentClass = nullptr;
-    for (auto inheritExpr : c->inheritExprs()) {
-      // Resolve the parent class type expression
-      ResolutionResultByPostorderID r;
-      auto visitor =
-        Resolver::createForParentClassScopeResolve(context, c, r);
-      // Parsing excludes non-identifiers as parent class expressions.
-      //
-      // Intended to avoid calling methodReceiverScopes() recursively.
-      // Uses the empty 'savedReceiverScopes' because the class expression
-      // can't be a method anyways.
-      bool ignoredMarkedGeneric = false;
-      auto ident = Class::getInheritExprIdent(inheritExpr,
-                                              ignoredMarkedGeneric);
-      visitor.resolveIdentifier(ident, visitor.savedReceiverScopes);
+  const uast::AstNode* lastParentClass = nullptr;
+  ID parentClassDeclId;
+  for (auto inheritExpr : c->inheritExprs()) {
+    // Resolve the parent class type expression
+    ResolutionResultByPostorderID r;
+    auto visitor =
+      Resolver::createForParentClassScopeResolve(context, c, r);
+    // Parsing excludes non-identifiers as parent class expressions.
+    //
+    // Intended to avoid calling methodReceiverScopes() recursively.
+    // Uses the empty 'savedReceiverScopes' because the class expression
+    // can't be a method anyways.
+    bool ignoredMarkedGeneric = false;
+    auto inherit = Class::getUnwrappedInheritExpr(inheritExpr,
+                                                ignoredMarkedGeneric);
+    inherit->traverse(visitor);
 
 
     ResolvedExpression& re = r.byAst(inherit);
@@ -2767,8 +2768,8 @@ std::vector<BorrowedIdsWithName> Resolver::lookupIdentifier(
 
   bool resolvingCalledIdent = nearestCalledExpression() == ident;
   LookupConfig config = IDENTIFIER_LOOKUP_CONFIG;
-
   if (!resolvingCalledIdent) config |= LOOKUP_INNERMOST;
+
   auto vec = lookupNameInScopeWithWarnings(context, scope, receiverScopes,
                                            ident->name(), config, ident->id());
 
