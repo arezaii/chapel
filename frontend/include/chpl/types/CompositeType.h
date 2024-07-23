@@ -225,7 +225,7 @@ class CompositeType : public Type {
   /** Get the record _owned implementing owned */
   static const RecordType* getOwnedRecordType(Context* context);
 
-  /** Get the record _owned implementing owned */
+  /** Get the record _shared implementing shared */
   static const RecordType* getSharedRecordType(Context* context);
 
   /** When compiling without a standard library (for testing purposes),
