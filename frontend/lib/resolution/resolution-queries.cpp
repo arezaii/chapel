@@ -2255,6 +2255,7 @@ resolveFunctionByInfoQuery(Context* context,
   const UntypedFnSignature* untypedSignature = sig->untyped();
   const AstNode* ast = parsing::idToAst(context, untypedSignature->id());
   const Function* fn = ast->toFunction();
+
   const PoiScope* poiScope = poiInfo.poiScope();
 
   PoiInfo resolvedPoiInfo;
@@ -3328,7 +3329,6 @@ static bool resolveFnCallSpecial(Context* context,
                                  const AstNode* astForErr,
                                  const CallInfo& ci,
                                  QualifiedType& exprTypeOut) {
-  // TODO: .borrow()
   // TODO: chpl__coerceCopy
 
   // Consider the resolution of .borrow() here a performance optimization, other

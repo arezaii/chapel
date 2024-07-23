@@ -718,7 +718,8 @@ Resolver::gatherReceiverAndParentScopesForType(Context* context,
 
 bool Resolver::getMethodReceiver(QualifiedType* outType, ID* outId) {
   if (!scopeResolveOnly &&
-      typedSignature &&      typedSignature->untyped()->isMethod()) {
+      typedSignature &&
+      typedSignature->untyped()->isMethod()) {
     // use type information to compute the receiver type
     if (outType) *outType = typedSignature->formalType(0);
     return true;
@@ -2766,6 +2767,7 @@ std::vector<BorrowedIdsWithName> Resolver::lookupIdentifier(
 
   bool resolvingCalledIdent = nearestCalledExpression() == ident;
   LookupConfig config = IDENTIFIER_LOOKUP_CONFIG;
+
   if (!resolvingCalledIdent) config |= LOOKUP_INNERMOST;
   auto vec = lookupNameInScopeWithWarnings(context, scope, receiverScopes,
                                            ident->name(), config, ident->id());
