@@ -175,18 +175,16 @@ const RecordType* CompositeType::getLocaleIDType(Context* context) {
 }
 
 const RecordType* CompositeType::getOwnedRecordType(Context* context) {
-  auto symbolPath = UniqueString::get(context, "OwnedObject._owned");
   auto name = UniqueString::get(context, "_owned");
-  auto id = ID(symbolPath, -1, 0);
+  auto id = parsing::getSymbolFromTopLevelModule(context, "OwnedObject", "_owned");
   return RecordType::get(context, id, name,
                          /* instantiatedFrom */ nullptr,
                          SubstitutionsMap());
 }
 
 const RecordType* CompositeType::getSharedRecordType(Context* context) {
-  auto symbolPath = UniqueString::get(context, "SharedObject._shared");
   auto name = UniqueString::get(context, "_shared");
-  auto id = ID(symbolPath, -1, 0);
+  auto id = parsing::getSymbolFromTopLevelModule(context, "SharedObject", "_shared");
   return RecordType::get(context, id, name,
                          /* instantiatedFrom */ nullptr,
                          SubstitutionsMap());
