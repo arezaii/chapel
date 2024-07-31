@@ -3333,13 +3333,15 @@ static bool resolveFnCallSpecial(Context* context,
 
   // Consider the resolution of .borrow() here a performance optimization, other
   // methods on _owned should be resolved the "normal" way, through the module code
-  if (ci.isMethodCall() && ci.name() == UniqueString::get(context, "borrow")) {
+  if (ci.isMethodCall() &&
+      (ci.name() == UniqueString::get(context, "borrow") ||
+       ci.name() == UniqueString::get(context, "release"))) {
     if (ci.numActuals() == 2) {
       auto thisQt = ci.actual(0).type();
       auto actualQt = ci.actual(1).type();
       if (thisQt.type()->isAnyOwnedType() && actualQt.type()->isClassType()) {
         if (actualQt.type()->toClassType()->decorator().isManaged()) {
-          // TODO: better checking that this is our OwnedObject.release method?
+          // TODO: better checking that this is our OwnedObject.borrow/release method?
           if (auto manager = actualQt.type()->toClassType()->manager()) {
             if (manager->isAnyOwnedType()) {
               exprTypeOut = actualQt;
