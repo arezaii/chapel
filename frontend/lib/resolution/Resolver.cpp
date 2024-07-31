@@ -691,18 +691,7 @@ Resolver::gatherReceiverAndParentScopesForType(Context* context,
       if (auto bct = ct->toBasicClassType()) {
         // add the scope for the manager type
         if (auto classType = thisType->toClassType()) {
-          // for owned && shared, manager is the built in AnyClassType
-          if (auto manager = classType->manager()) {
-            if (manager->isAnyOwnedType()) {
-              auto owned = CompositeType::getOwnedRecordType(context);
-              scopes.push_back(scopeForId(context, owned->id()));
-            } else if (manager->isAnySharedType()) {
-              auto shared = CompositeType::getSharedRecordType(context);
-              scopes.push_back(scopeForId(context, shared->id()));
-            } else if (auto mgr = manager->toRecordType()) {
-              scopes.push_back(scopeForId(context, mgr->id()));
-            }
-          }
+          scopes.push_back(scopeForId(context, classType->managerRecordType(context)->id()));
         }
         // also add scopes for all superclass types
         auto cur = bct->parentClassType();
@@ -718,6 +707,10 @@ Resolver::gatherReceiverAndParentScopesForType(Context* context,
 }
 
 bool Resolver::getMethodReceiver(QualifiedType* outType, ID* outId) {
+  if (this->symbol->id().symbolPath() == "MyTestModule.C" &&
+      this->curStmt->id().symbolPath() == "OwnedObject._owned") {
+    debuggerBreakHere();
+  }
   if (!scopeResolveOnly &&
       typedSignature &&
       typedSignature->untyped()->isMethod()) {
@@ -2411,7 +2404,17 @@ QualifiedType Resolver::typeForId(const ID& id, bool localGenericToUnknown) {
     ct = inCompositeType;
   } else {
     if (auto rt = methodReceiverType().type()) {
-      if (auto comprt = rt->getCompositeType()) {
+      auto nct = rt->toClassType();
+      // get the manager record using ClassType method managerRecordType()
+      if (nct && nct->managerRecordType(context) && nct->managerRecordType(context)->id() == parentId) {
+          ct = nct->managerRecordType(context);
+          auto fieldName = parsing::fieldIdToName(context, id);
+          if (fieldName == "chpl_t") {
+            return QualifiedType(QualifiedType::TYPE, nct->withDecorator(context, nct->decorator().toBorrowed()));
+          } else if (fieldName == "chpl_p") {
+             return QualifiedType(QualifiedType::VAR, nct->withDecorator(context, nct->decorator().toBorrowed()));
+          } // shared has additional fields that are not generic
+      } else if (auto comprt = rt->getCompositeType()) {
         ct = comprt; // start with the receiver type
         if (auto bct = comprt->toBasicClassType()) {
           // if it's a class, check for parent classes to decide
