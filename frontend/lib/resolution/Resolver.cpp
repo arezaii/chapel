@@ -691,7 +691,9 @@ Resolver::gatherReceiverAndParentScopesForType(Context* context,
       if (auto bct = ct->toBasicClassType()) {
         // add the scope for the manager type
         if (auto classType = thisType->toClassType()) {
-          scopes.push_back(scopeForId(context, classType->managerRecordType(context)->id()));
+          if (auto managerType = classType->managerRecordType(context)) {
+            scopes.push_back(scopeForId(context, managerType->id()));
+          }
         }
         // also add scopes for all superclass types
         auto cur = bct->parentClassType();
