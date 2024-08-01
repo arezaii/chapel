@@ -3331,7 +3331,7 @@ static bool resolveFnCallSpecial(Context* context,
                                  QualifiedType& exprTypeOut) {
   // TODO: chpl__coerceCopy
 
-  // Consider the resolution of .borrow() here a performance optimization, other
+  // Consider the resolution of .borrow() and release here a performance optimization, other
   // methods on _owned should be resolved the "normal" way, through the module code
   if (ci.isMethodCall() &&
       (ci.name() == UniqueString::get(context, "borrow") ||
