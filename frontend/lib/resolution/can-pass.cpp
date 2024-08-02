@@ -20,6 +20,7 @@
 #include "chpl/resolution/can-pass.h"
 
 #include "chpl/resolution/resolution-queries.h"
+#include "chpl/parsing/parsing-queries.h"
 #include "chpl/types/all-types.h"
 
 #include <cmath>
@@ -854,17 +855,23 @@ CanPassResult CanPassResult::canInstantiate(Context* context,
       }
     } else if (auto formalCt = formalT->toCompositeType()) {
       // check for instantiating _owned record
-      if (formalCt->isRecordType() && formalCt->name() == UniqueString::get(context, "_owned")) {
+      if (formalCt->isRecordType() &&
+          formalCt->name() == UniqueString::get(context, "_owned")) {
         if (actualCt->decorator().isManaged()) {
-          // TODO: check that the recordType is actually our _owned type in our bundled module
+          // check that the recordType is actually our _owned type in our bundled module
           // e.g., is ID in bundled modules and does it have 'pragma "managed pointer"'?
-          if (auto manager = actualCt->manager()) {
-            if (manager->isAnyOwnedType()) {
-              // TODO: what ConversionKind should we return here?
-              return CanPassResult(/* no fail reason, passes */ {},
-                      /* instantiates */ true,
-                      /* promotes */ false,
-                      /* converts */ ConversionKind::OTHER);
+          if (parsing::idIsInBundledModule(context, formalCt->id())) {
+            auto attrGrp = parsing::idToAttributeGroup(context, formalCt->id());
+            if (attrGrp->hasPragma(uast::pragmatags::PragmaTag::PRAGMA_MANAGED_POINTER)) {
+              if (auto manager = actualCt->manager()) {
+                if (manager->isAnyOwnedType()) {
+                  // TODO: what ConversionKind should we return here?
+                  return CanPassResult(/* no fail reason, passes */ {},
+                          /* instantiates */ true,
+                          /* promotes */ false,
+                          /* converts */ ConversionKind::OTHER);
+                }
+              }
             }
           }
         }

@@ -670,9 +670,6 @@ Resolver::gatherReceiverAndParentScopesForDeclId(Context* context,
       gatherParentClassScopesForScopeResolving(context, aggregateDeclId);
 
     scopes.append(v.begin(), v.end());
-    // TODO: We need to do something here to pad the scopes with _owned or _shared when applicable
-    // auto owned = CompositeType::getOwnedRecordType(context);
-    // scopes.push_back(scopeForId(context, owned->id()));
   }
 
   return scopes;
@@ -709,10 +706,6 @@ Resolver::gatherReceiverAndParentScopesForType(Context* context,
 }
 
 bool Resolver::getMethodReceiver(QualifiedType* outType, ID* outId) {
-  if (this->symbol->id().symbolPath() == "MyTestModule.C" &&
-      this->curStmt->id().symbolPath() == "OwnedObject._owned") {
-    debuggerBreakHere();
-  }
   if (!scopeResolveOnly &&
       typedSignature &&
       typedSignature->untyped()->isMethod()) {

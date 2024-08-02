@@ -116,7 +116,7 @@ const ClassType* ClassType::withDecorator(Context* context,
 }
 
 const RecordType* ClassType::managerRecordType(Context* context) const {
-  // for owned && shared, manager is the builtin AnyClassType
+  // for owned and shared, manager is the builtin AnyClassType
   if (auto myManager = manager()) {
     if (myManager->isAnyOwnedType()) {
       return CompositeType::getOwnedRecordType(context);
