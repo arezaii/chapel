@@ -1386,7 +1386,8 @@ QualifiedType getInstantiationType(Context* context,
       auto ct = ClassType::get(context, bct, manager, dec);
       return QualifiedType(formalType.kind(), ct);
     } else if (auto formalRT = formalT->toRecordType()) {
-      if (formalRT->name() == UniqueString::get(context, "_owned")) {
+      if (formalRT->name() == UniqueString::get(context, "_owned") ||
+          formalRT->name() == UniqueString::get(context, "_shared")) {
         auto bct = actualCt->basicClassType();
         auto manager = actualCt->manager();
         auto dec = actualCt->decorator();

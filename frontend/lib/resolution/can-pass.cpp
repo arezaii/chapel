@@ -874,6 +874,26 @@ CanPassResult CanPassResult::canInstantiate(Context* context,
               }
             }
           }
+        } // check for instantiating _shared record
+      } else if (formalCt->isRecordType() &&
+                 formalCt->name() == UniqueString::get(context, "_shared")) {
+        if (actualCt->decorator().isManaged()) {
+          // check that the recordType is actually our _shared type in our bundled module
+          // e.g., is ID in bundled modules and does it have 'pragma "managed pointer"'?
+          if (parsing::idIsInBundledModule(context, formalCt->id())) {
+            auto attrGrp = parsing::idToAttributeGroup(context, formalCt->id());
+            if (attrGrp->hasPragma(uast::pragmatags::PragmaTag::PRAGMA_MANAGED_POINTER)) {
+              if (auto manager = actualCt->manager()) {
+                if (manager->isAnySharedType()) {
+                  // TODO: what ConversionKind should we return here?
+                  return CanPassResult(/* no fail reason, passes */ {},
+                          /* instantiates */ true,
+                          /* promotes */ false,
+                          /* converts */ ConversionKind::OTHER);
+                }
+              }
+            }
+          }
         }
       }
     }
