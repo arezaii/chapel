@@ -812,6 +812,35 @@ bool CanPassResult::canInstantiateBuiltin(Context* context,
   return false;
 }
 
+
+CanPassResult
+CanPassResult::canInstantiateOwnedSharedHelper(Context* context,
+                                               const types::ClassType* actualCt,
+                                               const types::CompositeType* formalCt) {
+  if (formalCt->isRecordType() && actualCt->decorator().isManaged()) {
+    if (parsing::idIsInBundledModule(context, formalCt->id())) {
+      auto attrGrp = parsing::idToAttributeGroup(context, formalCt->id());
+      if (attrGrp->hasPragma(uast::pragmatags::PragmaTag::PRAGMA_MANAGED_POINTER)) {
+        if (auto manager = actualCt->manager()) {
+          // check for instantiating _owned or _shared records
+          if ((formalCt->name() == UniqueString::get(context, "_owned") &&
+              manager->isAnyOwnedType()) ||
+              (formalCt->name() == UniqueString::get(context, "_shared") &&
+              manager->isAnySharedType())) {
+                // TODO: what ConversionKind should we return here?
+                return CanPassResult(/* no fail reason, passes */ {},
+                        /* instantiates */ true,
+                        /* promotes */ false,
+                        /* converts */ ConversionKind::OTHER);
+          }
+        }
+      }
+    }
+  }
+  // more checking to be done by canInstantiate
+  return CanPassResult::fail(FAIL_CANNOT_INSTANTIATE);
+}
+
 CanPassResult CanPassResult::canInstantiate(Context* context,
                                             const QualifiedType& actualQT,
                                             const QualifiedType& formalQT) {
@@ -854,47 +883,11 @@ CanPassResult CanPassResult::canInstantiate(Context* context,
         return got;
       }
     } else if (auto formalCt = formalT->toCompositeType()) {
-      // check for instantiating _owned record
-      if (formalCt->isRecordType() &&
-          formalCt->name() == UniqueString::get(context, "_owned")) {
-        if (actualCt->decorator().isManaged()) {
-          // check that the recordType is actually our _owned type in our bundled module
-          // e.g., is ID in bundled modules and does it have 'pragma "managed pointer"'?
-          if (parsing::idIsInBundledModule(context, formalCt->id())) {
-            auto attrGrp = parsing::idToAttributeGroup(context, formalCt->id());
-            if (attrGrp->hasPragma(uast::pragmatags::PragmaTag::PRAGMA_MANAGED_POINTER)) {
-              if (auto manager = actualCt->manager()) {
-                if (manager->isAnyOwnedType()) {
-                  // TODO: what ConversionKind should we return here?
-                  return CanPassResult(/* no fail reason, passes */ {},
-                          /* instantiates */ true,
-                          /* promotes */ false,
-                          /* converts */ ConversionKind::OTHER);
-                }
-              }
-            }
-          }
-        } // check for instantiating _shared record
-      } else if (formalCt->isRecordType() &&
-                 formalCt->name() == UniqueString::get(context, "_shared")) {
-        if (actualCt->decorator().isManaged()) {
-          // check that the recordType is actually our _shared type in our bundled module
-          // e.g., is ID in bundled modules and does it have 'pragma "managed pointer"'?
-          if (parsing::idIsInBundledModule(context, formalCt->id())) {
-            auto attrGrp = parsing::idToAttributeGroup(context, formalCt->id());
-            if (attrGrp->hasPragma(uast::pragmatags::PragmaTag::PRAGMA_MANAGED_POINTER)) {
-              if (auto manager = actualCt->manager()) {
-                if (manager->isAnySharedType()) {
-                  // TODO: what ConversionKind should we return here?
-                  return CanPassResult(/* no fail reason, passes */ {},
-                          /* instantiates */ true,
-                          /* promotes */ false,
-                          /* converts */ ConversionKind::OTHER);
-                }
-              }
-            }
-          }
-        }
+      auto canPassOwnedShared = canInstantiateOwnedSharedHelper(context,
+                                                                actualCt,
+                                                                formalCt);
+      if (canPassOwnedShared.passes()) {
+        return canPassOwnedShared;
       }
     }
   } else if (auto actualCt = actualT->toCompositeType()) {
