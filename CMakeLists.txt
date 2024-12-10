@@ -51,7 +51,7 @@ set(CHPL_NEXT_PATCH_VERSION 0)
 
 # Flip this to 'true' when we're ready to roll out a release; then back
 # after branching
-set(CHPL_OFFICIAL_RELEASE false)
+set(CHPL_OFFICIAL_RELEASE true)
 
 ### END config.h version value setting - configured_prefix set below ###
 
@@ -424,13 +424,14 @@ add_custom_target(update-release-and-version-info ALL
           ${CHPL_NEXT_PATCH_VERSION}
           "--files"
           ${SRC_DIR}/doc/rst/conf.py
-          ${SRC_DIR}/man/confchpl.rst
-          ${SRC_DIR}/man/confchpldoc.rst
           ${SRC_DIR}/doc/rst/language/archivedSpecs.rst
           ${SRC_DIR}/doc/rst/usingchapel/QUICKSTART.rst
+          ${SRC_DIR}/doc/rst/usingchapel/chplenv.rst
+          ${SRC_DIR}/doc/util/versionButton.php
+          ${SRC_DIR}/man/confchpl.rst
+          ${SRC_DIR}/man/confchpldoc.rst
           ${SRC_DIR}/test/compflags/bradc/printstuff/versionhelp.sh
           ${SRC_DIR}/test/chpldoc/compflags/combinations/versionhelp-chpldoc.sh
-          ${SRC_DIR}/doc/util/versionButton.php
           ${SRC_DIR}/test/compflags/bradc/printstuff/version.goodstart
           ${RELEASE_FLAG}
   COMMENT "checking sensitive files for version changes..."
