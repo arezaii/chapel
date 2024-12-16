@@ -1,0 +1,47 @@
+name: Monitor Homebrew Formula
+
+on:
+  schedule:
+    - cron: '0 * * * *' # Runs every hour
+
+jobs:
+  check-and-update:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout this repository
+      uses: actions/checkout@v4
+
+    - name: Fetch released version of Chapel formula
+      run: |
+        curl -o hb_master_chapel.rb https://raw.githubusercontent.com/homebrew/homebrew-core/master/Formula/c/chapel.rb
+
+    - name: Compare the released version with the chapel-release.rb
+      id: compare
+      run: |
+        if ! cmp -s remote_chapel.rb util/packaging/homebrew/chapel-release.rb; then
+          echo "file_changed=true" >> $GITHUB_ENV
+        else
+          echo "file_changed=false" >> $GITHUB_ENV
+        fi
+
+    - name: Create a new branch if file has changed
+      if: env.file_changed == 'true'
+      run: |
+        git config --global user.email "you@example.com"
+        git config --global user.name "Your Name"
+        git checkout -b update-chapel-main
+        mv remote_chapel.rb chapel-main.rb
+        git add chapel-main.rb
+        git commit -m "Update chapel-main.rb with changes from chapel.rb"
+        git push --set-upstream origin update-chapel-main
+
+    - name: Create a pull request
+      if: env.file_changed == 'true'
+      uses: peter-evans/create-pull-request@v3
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        branch: update-chapel-main
+        title: 'Update chapel-main.rb'
+        body: 'This pull request updates chapel-main.rb with the latest changes from chapel.rb.'
+        labels: 'auto-update'
