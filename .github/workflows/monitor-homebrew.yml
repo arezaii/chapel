@@ -2,9 +2,6 @@ name: Monitor Homebrew Formula
 
 on: workflow_dispatch
 
-env:
-  file_changed: false
-
 jobs:
   check-and-update:
     runs-on: ubuntu-latest
