@@ -24,7 +24,7 @@ jobs:
     - name: Create a new branch if file has changed
       env:
         file_changed: ${{ steps.compare.outputs.file_changed }}
-      if: ${{ env.file_changed }}
+      if: ${{ env.file_changed == 'true' }}
       run: |
         git config --global user.email "you@example.com"
         git config --global user.name "Your Name"
