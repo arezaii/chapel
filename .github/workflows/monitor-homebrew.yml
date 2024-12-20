@@ -19,7 +19,7 @@ jobs:
     - name: Compare the released version with the chapel-release.rb
       id: compare
       run: |
-        if ! cmp -s remote_chapel.rb util/packaging/homebrew/chapel-release.rb; then
+        if ! cmp -s hb_master_chapel.rb util/packaging/homebrew/chapel-release.rb; then
           echo "file_changed=true" >> $GITHUB_ENV          
         else
           echo "file_changed=false" >> $GITHUB_ENV
@@ -30,7 +30,7 @@ jobs:
         git config --global user.email "you@example.com"
         git config --global user.name "Your Name"
         git checkout -b update-chapel-main
-        mv remote_chapel.rb chapel-main.rb
+        mv hb_master_chapel.rb chapel-main.rb
         git add chapel-main.rb
         git commit -m "Update chapel-main.rb with changes from chapel.rb"
         git push --set-upstream origin update-chapel-main
