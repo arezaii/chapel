@@ -1,0 +1,39 @@
+name: Monitor Homebrew Formula
+
+on: workflow_dispatch
+
+env:
+  file_changed: false
+
+jobs:
+  check-and-update:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout this repository
+      uses: actions/checkout@v4
+
+    - name: Fetch released version of Chapel formula
+      run: |
+        curl -o hb_master_chapel.rb https://raw.githubusercontent.com/homebrew/homebrew-core/master/Formula/c/chapel.rb
+    - name: Compare the released version with the chapel-release.rb
+      id: compare
+      run: |
+        if ! cmp -s remote_chapel.rb util/packaging/homebrew/chapel-release.rb; then
+          echo "file_changed=true" >> $GITHUB_ENV
+        else
+          echo "file_changed=false" >> $GITHUB_ENV
+        fi
+    - name: Create a new branch if file has changed
+      env:
+        file_changed: ${{ steps.compare.outputs.file_changed }}
+      if: ${{ env.file_changed }}
+      run: |
+        git config --global user.email "you@example.com"
+        git config --global user.name "Your Name"
+        git checkout -b update-chapel-main
+        mv remote_chapel.rb chapel-main.rb
+        git add chapel-main.rb
+        git commit -m "Update chapel-main.rb with changes from chapel.rb"
+        git push --set-upstream origin update-chapel-main
+        echo "Homebrew has updated the formula!"
