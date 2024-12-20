@@ -2,6 +2,9 @@ name: Monitor Homebrew Formula
 
 on: workflow_dispatch
 
+env:
+  file_changed: ${{ false }}
+
 jobs:
   check-and-update:
     runs-on: ubuntu-latest
@@ -17,14 +20,12 @@ jobs:
       id: compare
       run: |
         if ! cmp -s remote_chapel.rb util/packaging/homebrew/chapel-release.rb; then
-          echo "file_changed=true" >> $GITHUB_ENV
+          echo "file_changed=true" >> $GITHUB_ENV          
         else
           echo "file_changed=false" >> $GITHUB_ENV
         fi
-    - name: Create a new branch if file has changed
-      env:
-        file_changed: ${{ steps.compare.outputs.file_changed }}
-      if: ${{ env.file_changed == 'true' }}
+    - name: Create a new branch if file has changed      
+      if: ${{ env.file_changed == 'true' }}      
       run: |
         git config --global user.email "you@example.com"
         git config --global user.name "Your Name"
