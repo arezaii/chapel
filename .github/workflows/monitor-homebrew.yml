@@ -36,6 +36,7 @@ jobs:
 
     - name: Check if branch already exists
       id: check-branch
+      if: ${{ env.file_changed == 'true' }}
       run: |
         BRANCH_NAME=update-chapel-homebrew-release-${{ env.HASH_SUBSTRING }}
         if git ls-remote --heads origin $BRANCH_NAME | grep -q $BRANCH_NAME; then
@@ -47,7 +48,7 @@ jobs:
         fi
 
     - name: Exit if branch exists
-      if: env.branch_exists == 'true'
+      if: ${{ (env.file_changed == 'true') && (env.branch_exists == 'false') }}
       run: |
         echo "Branch already exists. Exiting."
         exit 0
