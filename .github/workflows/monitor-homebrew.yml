@@ -3,7 +3,7 @@ name: Monitor Homebrew Formula
 on: workflow_dispatch
 
 env:
-  file_changed: ${{ false }}
+  file_changed: ${{ false }}  
 
 jobs:
   check-and-update:
@@ -29,6 +29,24 @@ jobs:
         else
           echo "file_changed=false" >> $GITHUB_ENV
         fi        
+
+    - name: Check if branch already exists
+      id: check-branch
+      run: |
+        BRANCH_NAME=update-chapel-homebrew-release-${{ env.HASH_SUBSTRING }}
+        if git ls-remote --heads origin $BRANCH_NAME | grep -q $BRANCH_NAME; then
+          echo "Branch $BRANCH_NAME already exists."
+          echo "branch_exists=true" >> $GITHUB_ENV
+        else
+          echo "Branch $BRANCH_NAME does not exist."
+          echo "branch_exists=false" >> $GITHUB_ENV
+        fi
+
+    - name: Exit if branch exists
+      if: env.branch_exists == 'true'
+      run: |
+        echo "Branch already exists. Exiting."
+        exit 0
         
     - name: Create a new branch if file has changed      
       if: ${{ env.file_changed == 'true' }}      
