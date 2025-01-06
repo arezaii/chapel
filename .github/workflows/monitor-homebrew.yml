@@ -1,6 +1,9 @@
 name: Monitor Homebrew Formula
 
-on: workflow_dispatch
+on:
+  workflow_dispatch: # Allows manual triggering of the workflow
+  schedule:
+    - cron: '*/8 * * * *' # Runs every 8 minutes
 
 env:
   file_changed: ${{ false }}
