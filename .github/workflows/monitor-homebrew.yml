@@ -48,7 +48,7 @@ jobs:
         fi
 
     - name: Exit if branch exists
-      if: ${{ (env.file_changed == 'true') && (env.branch_exists == 'false') }}
+      if: ${{ (env.file_changed == 'true') && (env.branch_exists == 'true') }}
       run: |
         echo "Branch already exists. Exiting."
         exit 0
