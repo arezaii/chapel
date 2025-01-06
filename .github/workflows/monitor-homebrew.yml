@@ -50,7 +50,7 @@ jobs:
         exit 0
         
     - name: Create a new branch if file has changed      
-      if: (${{ env.file_changed == 'true' }}) && (env.branch_exists == 'false')     
+      if: ${{ (env.file_changed == 'true') && (env.branch_exists == 'false') }}    
       run: |
         git config --global user.email "github-action-bot@email.com"
         git config --global user.name "github action"
@@ -62,7 +62,7 @@ jobs:
         echo "Homebrew has updated the formula!"   
         
     - name: create pull request
-      if: (${{ env.file_changed == 'true' }}) && (env.branch_exists == 'false')
+      if: ${{ (env.file_changed == 'true') && (env.branch_exists == 'false') }} 
       run: gh pr create -B main -H update-chapel-homebrew-release-${{ env.HASH_SUBSTRING }} --title 'Update our copy of the released Homebrew formula' --body 'Homebrew released formula file hash is ${{ env.FILE_HASH }}. Created by Github action'
       env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
