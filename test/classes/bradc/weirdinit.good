@@ -1,2 +1,2 @@
 weirdinit.chpl:6: In function 'main':
-weirdinit.chpl:7: error: 'a' is used to define itself
+weirdinit.chpl:7: error: statement references variable 'a' before it is defined

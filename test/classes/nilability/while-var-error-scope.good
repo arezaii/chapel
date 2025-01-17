@@ -1,2 +1,2 @@
 while-var-error-scope.chpl:14: In function 'showCs':
-while-var-error-scope.chpl:16: error: 'Cnn' is used to define itself
+while-var-error-scope.chpl:16: error: statement references variable 'Cnn' before it is defined
