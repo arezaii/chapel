@@ -41,17 +41,17 @@ set(CHPL_PATCH_VERSION 0)
 set(CHPL_BUILD_VERSION 0)
 
 set(CHPL_PREV_MAJOR_VERSION 2)
-set(CHPL_PREV_MINOR_VERSION 2)
+set(CHPL_PREV_MINOR_VERSION 3)
 set(CHPL_PREV_PATCH_VERSION 0)
 
 set(CHPL_NEXT_MAJOR_VERSION 2)
-set(CHPL_NEXT_MINOR_VERSION 4)
+set(CHPL_NEXT_MINOR_VERSION 5)
 set(CHPL_NEXT_PATCH_VERSION 0)
 
 
 # Flip this to 'true' when we're ready to roll out a release; then back
 # after branching
-set(CHPL_OFFICIAL_RELEASE true)
+set(CHPL_OFFICIAL_RELEASE false)
 
 ### END config.h version value setting - configured_prefix set below ###
 
