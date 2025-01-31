@@ -147,6 +147,7 @@ PACKAGES_TO_DOCUMENT = \
 	packages/LockFreeStack.chpl \
 	packages/MPI.chpl \
 	packages/NetCDF.chpl \
+	packages/NewTestModule.chpl \
 	packages/NPBRandom.chpl \
 	packages/ObjectSerialization.chpl \
 	packages/ProtobufProtocolSupport.chpl \
