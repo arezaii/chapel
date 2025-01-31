@@ -138,5 +138,6 @@ Miscellaneous
 
    Collection <packages/Collection>
    FunctionalOperations <packages/FunctionalOperations>
+   NewTestModule <packages/NewTestModule>
    PeekPoke <packages/PeekPoke>
    ReplicatedVar <packages/ReplicatedVar>
