@@ -427,7 +427,6 @@ add_custom_target(update-release-and-version-info ALL
           ${SRC_DIR}/doc/rst/language/archivedSpecs.rst
           ${SRC_DIR}/doc/rst/usingchapel/QUICKSTART.rst
           ${SRC_DIR}/doc/rst/usingchapel/chplenv.rst
-          ${SRC_DIR}/doc/util/versionButton.php
           ${SRC_DIR}/man/confchpl.rst
           ${SRC_DIR}/man/confchpldoc.rst
           ${SRC_DIR}/test/compflags/bradc/printstuff/versionhelp.sh
