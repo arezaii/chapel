@@ -954,8 +954,8 @@ generateRecordAssignment(Context* context, const CompositeType* lhsType) {
 static const TypedFnSignature*
 generateRecordComparison(Context* context, const CompositeType* lhsType) {
   return generateRecordBinaryOperator(context, USTR("=="), lhsType,
-                                      /*this*/ QualifiedType::REF,
-                                      /*lhs*/  QualifiedType::REF,
+                                      /*this*/ QualifiedType::CONST_REF,
+                                      /*lhs*/  QualifiedType::CONST_REF,
                                       /*rhs*/  QualifiedType::CONST_REF);
 }
 
