@@ -59,7 +59,8 @@ For option 1, see the following example of how to install Chapel on WSL::
     # Test that chpl is available
     chpl --version
 
-There are no platform-specific settings for Chapel on WSL at this time.
+There are no platform-specific settings for Chapel on WSL at this time. Chapel should
+just work, which is awesome!
 
   .. note::
 
