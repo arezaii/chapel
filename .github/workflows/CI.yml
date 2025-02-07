@@ -192,7 +192,7 @@ jobs:
           done
 
   publish-docs:
-    if: github.event.pull_request.merged == 'true' && github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: github.event_name == 'push' && github.repository == 'arezaii/chapel'
     runs-on: ubuntu-latest
     needs: make_doc
     steps:
