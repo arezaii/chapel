@@ -527,22 +527,22 @@ module CTypes {
     else
       compilerError("cast of c_array to c_ptr with a different element type");
   }
-  @chpldoc.nodoc
-  inline operator :(x:c_ptr, type t:c_ptr(void)) {
-    return __primitive("cast", t, x);
-  }
-  @chpldoc.nodoc
-  inline operator :(x:c_ptr, type t:c_ptrConst(void)) {
-    return __primitive("cast", t, x);
-  }
-  @chpldoc.nodoc
-  inline operator :(x:c_ptrConst, type t:c_ptr(void)) {
-    return __primitive("cast", t, x);
-  }
-  @chpldoc.nodoc
-  inline operator :(x:c_ptrConst, type t:c_ptrConst(void)) {
-    return __primitive("cast", t, x);
-  }
+  // @chpldoc.nodoc
+  // inline operator :(x:c_ptr, type t:c_ptr(void)) {
+  //   return __primitive("cast", t, x);
+  // }
+  // @chpldoc.nodoc
+  // inline operator :(x:c_ptr, type t:c_ptrConst(void)) {
+  //   return __primitive("cast", t, x);
+  // }
+  // @chpldoc.nodoc
+  // inline operator :(x:c_ptrConst, type t:c_ptr(void)) {
+  //   return __primitive("cast", t, x);
+  // }
+  // @chpldoc.nodoc
+  // inline operator :(x:c_ptrConst, type t:c_ptrConst(void)) {
+  //   return __primitive("cast", t, x);
+  // }
   // c_ptr(void) specialization of c_ptr->c_ptr cast, to enable implicit
   // conversion of casted value to c_ptr(void)
   @chpldoc.nodoc
