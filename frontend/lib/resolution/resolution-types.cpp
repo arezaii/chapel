@@ -617,7 +617,7 @@ bool FormalActualMap::computeAlignment(const UntypedFnSignature* untyped,
     const Decl* decl = untyped->formalDecl(i);
     QualifiedType formalQT;
     bool formalInstantiated = false;
-
+    // disambiguation fails because we're looking at R(nothing) as if it were instantiated
     if (typed != nullptr) {
       formalQT = typed->formalType(i);
       if (typed->instantiatedFrom() != nullptr) {

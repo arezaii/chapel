@@ -857,7 +857,7 @@ tryConvertClassTypeIntoManagerRecordIfNeeded(Context* context,
 
   bool isCtManagedAndDecorated = classTypeIsManagedAndDecorated(context, ct);
   // if mightBeManagerRecord is a record type and (mightBeClass is a class type
-  // that is managed and decorated or mightBeClass is the generic 'owned' or 
+  // that is managed and decorated or mightBeClass is the generic 'owned' or
   // 'shared' type) we can continue
   if (!mr || (!isCtManagedAndDecorated && !aot && !ast )) return false;
 
@@ -1081,6 +1081,17 @@ CanPassResult CanPassResult::canPassScalar(Context* context,
     // 'AnyType' has special meaning elsewhere, so it doesn't count as
     // instantiation here.
     if (formalQT.kind() == QualifiedType::TYPE && !formalT->isAnyType()) {
+      // if (formalQT.type()->isCompositeType()) {
+      //   if (auto ct = formalQT.type()->toCompositeType()) {
+      //     if (ct->name() == "R") {
+      //       if (ct->substitutions().size() == 1) {
+      //         if (ct->substitutions().begin()->second.type()->isNothingType()) {
+      //           return passAsIs();
+      //         }
+      //       }
+      //     }
+      //   }
+      // }
       return instantiate();
     }
 

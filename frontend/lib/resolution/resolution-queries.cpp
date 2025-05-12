@@ -1462,7 +1462,11 @@ Type::Genericity getTypeGenericity(Context* context, const Type* t) {
 
 static const Type::Genericity& getTypeGenericityViaQualifiedTypeQuery(Context* context, QualifiedType qt) {
   QUERY_BEGIN(getTypeGenericityViaQualifiedTypeQuery, context, qt);
-
+  if (auto comp = qt.type()->getCompositeType()) {
+    if (comp->name() == "R") {
+    debuggerBreakHere();
+  }
+}
   std::set<const Type*> ignore;
   auto result = getTypeGenericityIgnoring(context, qt, ignore);
 
@@ -2215,6 +2219,9 @@ instantiateSignatureImpl(ResolutionContext* rc,
   const Function* fn = nullptr;
   const AggregateDecl* ad = nullptr;
   const Enum* ed = nullptr;
+  if (call.name()== USTR(":")) {
+      debuggerBreakHere();
+  }
 
   if (!untypedSignature->id().isEmpty()) {
     ast = parsing::idToAst(context, untypedSignature->id());
@@ -2348,6 +2355,9 @@ instantiateSignatureImpl(ResolutionContext* rc,
         if (!got.converts() && instantiateAcrossManagerRecordConversion(context, formalType, actualType, useType)) {
           // useType was set as an out parameter of the call in the condition.
           addSub = true;
+        } else if (!got.converts() && scalarType == formalType) {
+          // use the actual type since no conversion/promotion was needed
+          useType = scalarType;
         } else if (!got.converts()) {
           // use the actual type since no conversion/promotion was needed
           addSub = true;
