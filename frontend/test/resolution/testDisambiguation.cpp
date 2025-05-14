@@ -419,6 +419,35 @@ static void testDistance() {
   assert(x->isStringType());
 }
 
+// static void testGenericVsConcrete() {
+//   auto context = buildStdContext();
+//   ErrorGuard guard(context);
+
+//   std::string program = R"""(
+//       record R {
+//         type T;
+//         var x : T;
+//       }
+
+//       operator :(arg: R(?), type t: R(?)) {
+//         return arg;
+//       }
+
+//       operator :(arg: R(?), type k: R(nothing)) {
+//         var ret : k;
+//         return ret;
+//       }
+
+//       proc main() {
+//         var r = new R(int);
+//         var x = r:R(nothing);
+//       }
+//   )""";
+
+  // auto qt = resolveQualifiedTypeOfX(context, program);
+  // assert(qt.type()->isIntType());
+// }
+
 int main() {
 
   test1();
@@ -428,6 +457,7 @@ int main() {
   test5();
   test6();
   testDistance();
+  // testGenericVsConcrete();
 
   return 0;
 }

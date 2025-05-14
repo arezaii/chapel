@@ -255,12 +255,82 @@ static void test5() {
   }
 }
 
+static void test6() {
+  auto context = buildStdContext();
+  ErrorGuard guard(context);
+
+  std::string program = R"""(
+    record R {
+      type T;
+      var b : T;
+    }
+
+    proc cast(arg: R(?), type t: R(nothing)) {
+      var ret : t;
+      return ret;
+    }
+
+    var r = new R(int);
+    var x = cast(r, R(nothing));
+
+  )""";
+
+  auto m = parseModule(context, program);
+  auto r = resolveModule(context, m->id());
+
+  auto x = findVariable(m, "x");
+  auto xType = r.byAst(x).type();
+  assert(xType.type()->isCompositeType());
+  auto subs = xType.type()->toCompositeType()->substitutions();
+  assert(subs.size() == 1);
+  for (auto pair : subs) {
+    assert(pair.second.type()->isNothingType());
+  }
+
+}
+
+static void test7() {
+  auto context = buildStdContext();
+  ErrorGuard guard(context);
+
+  std::string program = R"""(
+    record R {
+      type T;
+      var b : T;
+    }
+
+    proc cast(arg: R(?), type t: R(?)) {
+      var ret : t;
+      return ret;
+    }
+
+    var r = new R(int);
+    var x = cast(r, R(nothing));
+
+  )""";
+
+  auto m = parseModule(context, program);
+  auto r = resolveModule(context, m->id());
+
+  auto x = findVariable(m, "x");
+  auto xType = r.byAst(x).type();
+  assert(xType.type()->isCompositeType());
+  auto subs = xType.type()->toCompositeType()->substitutions();
+  assert(subs.size() == 1);
+  for (auto pair : subs) {
+    assert(pair.second.type()->isNothingType());
+  }
+
+}
+
 int main() {
   test1();
   test2();
   test3();
   test4();
   test5();
+  test6();
+  test7();
 
   return 0;
 }
