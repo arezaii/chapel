@@ -8,7 +8,7 @@ class Chapel < Formula
   license "Apache-2.0"
   head "https://github.com/chapel-lang/chapel.git", branch: "main"
 
-  # Don't include the bottle information in chapel-main.rb deliberatley. The
+  # Don't include the bottle information in chapel-main.rb deliberately. The
   # idea is that we don't want to accidentally use a published bottle in our testing,
   # which would always report passing.
 
@@ -16,7 +16,7 @@ class Chapel < Formula
   depends_on "gmp"
   depends_on "hwloc"
   depends_on "jemalloc"
-  depends_on "llvm@19"
+  depends_on "llvm"
   depends_on "pkgconf"
   depends_on "python@3.13"
 
