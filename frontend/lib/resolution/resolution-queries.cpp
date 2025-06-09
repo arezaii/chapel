@@ -2219,9 +2219,6 @@ instantiateSignatureImpl(ResolutionContext* rc,
   const Function* fn = nullptr;
   const AggregateDecl* ad = nullptr;
   const Enum* ed = nullptr;
-  if (call.name()== UniqueString::get(context, "cast")) {
-      debuggerBreakHere();
-  }
 
   if (!untypedSignature->id().isEmpty()) {
     ast = parsing::idToAst(context, untypedSignature->id());
@@ -2283,6 +2280,9 @@ instantiateSignatureImpl(ResolutionContext* rc,
     visitor.skipTypeQueries = false;
 
     bool addSub = false;
+    // we tried separating the instantiation from the substitution flags
+    // with limited success
+    bool instantiatedFormal = false;
     QualifiedType useType;
     const auto formal = untypedSignature->formalDecl(entry.formalIdx());
     const auto& actualType = entry.actualType();
@@ -2355,14 +2355,20 @@ instantiateSignatureImpl(ResolutionContext* rc,
         if (!got.converts() && instantiateAcrossManagerRecordConversion(context, formalType, actualType, useType)) {
           // useType was set as an out parameter of the call in the condition.
           addSub = true;
+          instantiatedFormal = true;
+        } else if (!got.converts() && !got.instantiates() && formalType.isType()) {
+          useType = scalarType;
+          addSub = true;
+          instantiatedFormal = false;
         } else if (!got.converts()) {
           // use the actual type since no conversion/promotion was needed
           addSub = true;
           useType = scalarType;
+          instantiatedFormal = true;
         } else {
           // get instantiation type
           addSub = true;
-
+          instantiatedFormal = true;
           useType = getInstantiationType(context,
                                          scalarType,
                                          formalType);
@@ -2426,7 +2432,10 @@ instantiateSignatureImpl(ResolutionContext* rc,
         if ((size_t) formalIdx >= formalsInstantiated.size()) {
           formalsInstantiated.resize(sig->numFormals());
         }
-        formalsInstantiated.setBit(formalIdx, true);
+
+        if (instantiatedFormal) {
+          formalsInstantiated.setBit(formalIdx, true);
+        }
       }
 
       formalIdx++;
