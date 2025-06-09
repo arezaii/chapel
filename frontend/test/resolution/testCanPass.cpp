@@ -676,9 +676,10 @@ static void test12() {
 
 
   // test that concrete records pass as-is
+  // TODO: should this be instantiates or as-is?
   CanPassResult r;
   r = canPass(context, vars.at("b"), vars.at("argLookAtME"));
-  assert(passesAsIs(r));
+  assert(passesInstantiates(r));
 }
 
 static void test13() {
@@ -693,10 +694,11 @@ static void test13() {
       )""", {"a", "b"});
 
 
-  // test that concrete records pass as-is
+  // test that concrete c_ptr passes as-is
+  // TODO Should this be instantiates or as-is?
   CanPassResult r;
   r = canPass(context, vars.at("b"), vars.at("a"));
-  assert(passesAsIs(r));
+  assert(passesInstantiates(r));
 }
 
 static void test14() {
@@ -711,7 +713,7 @@ static void test14() {
       )""", {"a", "b"});
 
 
-  // test that concrete records pass as-is
+  // test that generic c_ptr passes instantiates
   CanPassResult r;
   r = canPass(context, vars.at("b"), vars.at("a"));
   assert(passesInstantiates(r));
