@@ -1767,7 +1767,14 @@ static bool isFormalInstantiatedAny(const DisambiguationCandidate& candidate,
  */
 static bool isFormalPartiallyGeneric(const DisambiguationCandidate& candidate,
                                      const FormalActual* fa) {
-  // TODO
+  // TODO - fully implement
+
+  // this is just a test for a special argument name to see if it triggers partially generic formal logic
+  if (auto formal = fa->formal()->toNamedDecl()) {
+    if (formal->name().startsWith("argLookAtME")) {
+      return true;
+    }
+  }
   return false;
 }
 
