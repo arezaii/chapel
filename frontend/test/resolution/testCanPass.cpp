@@ -616,7 +616,7 @@ static void test9() {
 }
 
 static void test10() {
-  printf("test9\n");
+  printf("test10\n");
   Context ctx;
   Context* context = &ctx;
 
@@ -626,12 +626,92 @@ static void test10() {
         type A, B;
       }
 
-      type a = Bar(int);
-      type b = Bar(int, int);
+      type a = C(int);
+      type b = C(int, int);
       )""", {"a", "b"});
 
 
   // test that partial instantiation passing works with classes
+  CanPassResult r;
+  r = canPass(context, vars.at("b"), vars.at("a"));
+  assert(passesInstantiates(r));
+}
+
+static void test11() {
+  printf("test11\n");
+  Context* context = buildStdContext();
+
+  auto vars = resolveTypesOfVariables(context,
+      R"""(
+      record R {
+        type T;
+        var x : T;
+      }
+
+      type a = R(?);
+      type b = R(nothing);
+      )""", {"a", "b"});
+
+
+  // test that generic records instantiate
+  CanPassResult r;
+  r = canPass(context, vars.at("b"), vars.at("a"));
+  assert(passesInstantiates(r));
+}
+
+static void test12() {
+  printf("test12\n");
+  Context* context = buildStdContext();
+
+  auto vars = resolveTypesOfVariables(context,
+      R"""(
+      record R {
+        type T;
+        var x : T;
+      }
+
+      type argLookAtME = R(nothing);
+      type b = R(nothing);
+      )""", {"argLookAtME", "b"});
+
+
+  // test that concrete records pass as-is
+  CanPassResult r;
+  r = canPass(context, vars.at("b"), vars.at("argLookAtME"));
+  assert(passesAsIs(r));
+}
+
+static void test13() {
+  printf("test13\n");
+  Context* context = buildStdContext();
+
+  auto vars = resolveTypesOfVariables(context,
+      R"""(
+      use CTypes;
+      type a = c_ptr(void);
+      type b = c_ptr(void);
+      )""", {"a", "b"});
+
+
+  // test that concrete records pass as-is
+  CanPassResult r;
+  r = canPass(context, vars.at("b"), vars.at("a"));
+  assert(passesAsIs(r));
+}
+
+static void test14() {
+  printf("test14\n");
+  Context* context = buildStdContext();
+
+  auto vars = resolveTypesOfVariables(context,
+      R"""(
+      use CTypes;
+      type a = c_ptr(?);
+      type b = c_ptr(void);
+      )""", {"a", "b"});
+
+
+  // test that concrete records pass as-is
   CanPassResult r;
   r = canPass(context, vars.at("b"), vars.at("a"));
   assert(passesInstantiates(r));
@@ -648,6 +728,9 @@ int main() {
   test8();
   test9();
   test10();
-
+  test11();
+  test12();
+  test13();
+  test14();
   return 0;
 }
