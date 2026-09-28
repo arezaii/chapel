@@ -88,6 +88,10 @@ to run a simple Chapel program:
    RUN chpl hello.chpl
    CMD ["./hello"]
 
+For other working examples of Chapel containers, including multi-locale (distributed memory) usage with libfabric,
+review the sources of the `Arkouda <https://github.com/bears-r-us/arkouda>`__ 
+project's Docker files.
+
 Github Codespaces
 ~~~~~~~~~~~~~~~~~
 
